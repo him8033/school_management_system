@@ -1,3 +1,3 @@
-const baseApi = "http://localhost:3000/api";
+const baseApi = "https://school-management-system-00wq.onrender.com/api";
 
 export { baseApi }
