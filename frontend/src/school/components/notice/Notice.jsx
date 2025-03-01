@@ -1,12 +1,12 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import React, { useEffect, useState } from 'react'
-import { noticeSchema } from '../../../yupSchema/noticeSchema'
+import { noticeSchema } from '../../../yupSchema/noticeSchema.js'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar'
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
 export default function Notice() {
 

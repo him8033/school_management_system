@@ -6,10 +6,10 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
-import { examinationSchema } from '../../../yupSchema/examinationSchema'
+import { examinationSchema } from '../../../yupSchema/examinationSchema.js'
 import axios from 'axios';
-import { baseApi } from '../../../environment';
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar';
+import { baseApi } from '../../../environment.js';
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 
 export default function Examination() {
   const [examinations, setExaminations] = React.useState([]);

@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 import axios from 'axios'
 
 export default function Attendee({ classId, handleMessage, message }) {

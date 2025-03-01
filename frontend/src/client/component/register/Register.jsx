@@ -3,10 +3,10 @@ import Box from '@mui/material/Box';
 import { CardMedia, Button, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useFormik } from 'formik';
-import { registerSchema } from '../../../yupSchema/registerSchema';
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar';
+import { registerSchema } from '../../../yupSchema/registerSchema.js';
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
-import { baseApi } from '../../../environment';
+import { baseApi } from '../../../environment.js';
 
 export default function Register() {
   const [file, setFile] = React.useState(null);

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check'
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar'
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
 export default function AttendanceTeacher() {
   const [classes, setClasses] = useState([]);

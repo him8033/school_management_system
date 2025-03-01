@@ -3,12 +3,12 @@ import Box from '@mui/material/Box';
 import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useFormik } from 'formik';
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar';
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
-import { loginSchema } from '../../../yupSchema/loginSchema';
-import { AuthContext } from '../../../context/AuthContext';
+import { loginSchema } from '../../../yupSchema/loginSchema.js';
+import { AuthContext } from '../../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
-import { baseApi } from '../../../environment';
+import { baseApi } from '../../../environment.js';
 
 export default function Login() {
   const [role, setRole] = React.useState('student')

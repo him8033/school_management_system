@@ -3,10 +3,10 @@ import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { Button, FormControl, MenuItem, Select, Typography } from '@mui/material'
-import ScheduleEvent from './ScheduleEvent'
+import ScheduleEvent from './ScheduleEvent.jsx'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar'
+import { baseApi } from '../../../environment.js'
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
 const localizer = momentLocalizer(moment);
 

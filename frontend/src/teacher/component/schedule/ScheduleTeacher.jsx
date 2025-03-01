@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { FormControl, MenuItem, Select, Typography } from '@mui/material'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 
 const localizer = momentLocalizer(moment);
 

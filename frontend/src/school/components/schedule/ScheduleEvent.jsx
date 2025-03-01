@@ -1,9 +1,9 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { periodSchema } from '../../../yupSchema/periodSchema';
+import { periodSchema } from '../../../yupSchema/periodSchema.js';
 import axios from 'axios';
 import { useFormik } from 'formik';
-import { baseApi } from '../../../environment';
+import { baseApi } from '../../../environment.js';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";

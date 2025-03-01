@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 import { Typography, Box, Button, TextField, CardMedia } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar'
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
 export default function Dashboard() {
   const [school, setSchool] = useState(null);

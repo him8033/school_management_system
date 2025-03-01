@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Typography, FormControl, InputLabel, Select, MenuItem, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Box } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar';
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid2';
-import Attendee from './Attendee';
+import Attendee from './Attendee.jsx';
 import { Link } from 'react-router-dom';
 
 const Item = styled(Paper)(({ theme }) => ({

@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import axios from 'axios'
-import {baseApi} from '../../../../environment'
+import {baseApi} from '../../../../environment.js'
 
 const style = {
   position: 'absolute',

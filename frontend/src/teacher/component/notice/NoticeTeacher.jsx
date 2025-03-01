@@ -1,7 +1,7 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material'
+import { Box, Paper, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 
 export default function NoticeTeacher() {
   const [noticees, setNotices] = useState([]);

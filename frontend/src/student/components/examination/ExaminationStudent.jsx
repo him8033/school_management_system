@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import axios from 'axios';
-import { baseApi } from '../../../environment';
+import { baseApi } from '../../../environment.js';
 
 export default function ExaminationStudent() {
   const [examinations, setExaminations] = React.useState([]);

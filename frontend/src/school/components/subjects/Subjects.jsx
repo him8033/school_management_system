@@ -1,12 +1,12 @@
 import { Box, Button, Paper, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import React, { useEffect, useState } from 'react'
-import { subjectSchema } from '../../../yupSchema/subjectSchema'
+import { subjectSchema } from '../../../yupSchema/subjectSchema.js'
 import axios from 'axios'
-import { baseApi } from '../../../environment'
+import { baseApi } from '../../../environment.js'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar'
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
 export default function Subjects() {
 

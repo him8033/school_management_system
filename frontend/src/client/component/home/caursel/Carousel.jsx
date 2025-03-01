@@ -6,7 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import axios from 'axios'
-import { baseApi } from '../../../../environment'
+import { baseApi } from '../../../../environment.js'
 
 
 export default function Carousel() {

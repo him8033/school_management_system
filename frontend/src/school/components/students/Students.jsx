@@ -3,10 +3,10 @@ import Box from '@mui/material/Box';
 import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useFormik } from 'formik';
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar';
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
-import { studentEditSchema, studentSchema } from '../../../yupSchema/studentSchema';
-import { baseApi } from '../../../environment'
+import { studentEditSchema, studentSchema } from '../../../yupSchema/studentSchema.js';
+import { baseApi } from '../../../environment.js'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Box, TextField } from '@mui/material';
 import { useFormik } from 'formik';
-import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar';
+import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
-import { teacherEditSchema, teacherSchema } from '../../../yupSchema/teacherSchema';
-import { baseApi } from '../../../environment'
+import { teacherEditSchema, teacherSchema } from '../../../yupSchema/teacherSchema.js';
+import { baseApi } from '../../../environment.js'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 
