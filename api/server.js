@@ -17,7 +17,12 @@ const noticeRouter = require("./routers/notice.router.js");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-const corsOption = {exposedHeaders: "Authorization"};
+const corsOption = {
+    origin: "*",
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
+    exposedHeaders: "Authorization"
+};
 app.use(cors(corsOption));
 app.use(cookieParser());
 
