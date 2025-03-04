@@ -33,8 +33,8 @@ import LogOut from './client/component/logout/LogOut.jsx'
 import DraggableButton from './basicUtilityComponent/draggable/DraggableButton.jsx'
 import { ThemeProvider } from '@emotion/react'
 import { useContext } from 'react'
-import darkTheme from './basicUtilityComponent/dark_theme/darkTheme'
-import lightTheme from './basicUtilityComponent/light_theme/lightTheme'
+import darkTheme from './basicUtilityComponent/dark_theme/darkTheme.js'
+import lightTheme from './basicUtilityComponent/light_theme/lightTheme.js'
 
 function App() {
   const {dark} = useContext(AuthContext);

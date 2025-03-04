@@ -303,7 +303,7 @@ export default function Teachers() {
 
       </Box>
 
-      <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mt: '40px' }}>
+      <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: '20px', mt: '40px' }}>
         {teachers && teachers.map(teacher => {
           return (
             <Card key={teacher._id} sx={{ maxWidth: 345, ml: '25px' }}>

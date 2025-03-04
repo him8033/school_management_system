@@ -122,7 +122,19 @@ export default function Dashboard() {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-          <Typography variant='h3'> {school.school_name} </Typography>
+          <Box sx={{
+            position: "absolute",
+            bottom: 20,
+            left: "50%",
+            color: 'white',
+            transform: "translateX(-50%)",
+            bgcolor: "rgba(0, 0, 0, 0.7)",
+            padding: "10px 20px",
+            borderRadius: 1,
+          }}
+          >
+            <Typography variant="h5">{school.school_name}</Typography>
+          </Box>
 
           <Box component={'div'} sx={{ position: 'absolute', bottom: '10px', right: '10px', height: '50px', width: '50px' }}>
             <Button sx={{ borderRadius: '50%', background: '#fff', color: 'black', height: '60px' }} onClick={() => { setEdit(true) }}>

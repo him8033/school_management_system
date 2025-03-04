@@ -366,7 +366,7 @@ export default function Students() {
         </FormControl>
       </Box>
 
-      <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mt: '40px' }}>
+      <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: '20px', mt: '40px' }}>
         {students && students.map(student => {
           return (
             <Card key={student._id} sx={{ maxWidth: 345, ml: '25px' }}>
@@ -381,7 +381,8 @@ export default function Students() {
                   <Typography gutterBottom variant="h5" component="div">
                     <span style={{ fontWeight: '700' }}>Name: </span>{student.name}
                   </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
+                  <Typography gutterBottom variant="h5" component="div" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}> 
+                  {/* maxWidth: '300px', wordBreak: 'break-word' */}
                     <span style={{ fontWeight: '700' }}>E-mail: </span>{student.email}
                   </Typography>
                   <Typography gutterBottom variant="h5" component="div">
