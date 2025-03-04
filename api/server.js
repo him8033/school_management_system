@@ -45,6 +45,10 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/examination", examinationRouter);
 app.use("/api/notice", noticeRouter);
 
+app.get("/api/testing", (req, res) => {
+    res.send("Server is Working Properly.")
+})
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log("Server is listning on Port-", PORT);
