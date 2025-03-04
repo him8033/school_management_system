@@ -19,11 +19,12 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 const corsOption = {
     origin: "*",
-    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     allowedHeaders: "Content-Type, Authorization",
     exposedHeaders: "Authorization"
 };
 app.use(cors(corsOption));
+app.options("*", cors(corsOption));
 app.use(cookieParser());
 
 const MongoURL = process.env.LOCAL_MONGO_URL;
