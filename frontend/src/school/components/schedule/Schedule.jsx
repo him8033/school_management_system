@@ -15,28 +15,14 @@ export default function Schedule() {
   const [selectedClass, setSelectedClass] = useState("");
   const [newPeriod, setNewPeriod] = useState(false);
   const date = new Date();
-  const myEventsList = [
-    {
-      id: 1,
-      title: "Subject: FCET, Teacher: Rajiv",
-      start: new Date(date.setHours(11, 30)),
-      end: new Date(date.setHours(12, 30))
-    },
-
-    {
-      id: 2,
-      title: "Subject: POM, Teacher: Rajesh",
-      start: new Date(date.setHours(13, 30)),
-      end: new Date(date.setHours(14, 30))
-    },
-  ]
+  const myEventsList = []
 
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
   const handleMessageClose = () => {
     setMessage('');
   }
-  
+
   const handleMessageNew = (msg, type) => {
     setMessage(msg);
     setMessageType(type);
@@ -60,7 +46,11 @@ export default function Schedule() {
     axios.get(`${baseApi}/class/all`)
       .then(res => {
         setClasses(res.data.data);
-        setSelectedClass(res.data.data[0]._id)
+        if (res.data.data.length > 0) {
+          setSelectedClass(res.data.data[0]._id);
+        }else{
+          setSelectedClass("");
+        }
       }).catch(err => {
         console.log("Fetch Class Error:", err);
       })
@@ -98,7 +88,7 @@ export default function Schedule() {
             setSelectedClass(e.target.value)
           }}
         >
-          <MenuItem>Select Class</MenuItem>
+          <MenuItem value="">Select Class</MenuItem>
           {classes && classes.map(x => {
             return (<MenuItem key={x._id} value={x._id}>{x.class_text} [{x.class_num}]</MenuItem>)
           })}
@@ -106,13 +96,13 @@ export default function Schedule() {
       </FormControl>
 
       <Button onClick={() => { setNewPeriod(true) }}>Add New Period</Button>
-      {(newPeriod || edit) && <ScheduleEvent 
-        selectedClass={selectedClass} 
-        handleEventClose={handleEventClose} 
+      {(newPeriod || edit) && <ScheduleEvent
+        selectedClass={selectedClass}
+        handleEventClose={handleEventClose}
         handleMessageNew={handleMessageNew}
         edit={edit}
         selectedEventId={selectedEventId}
-     />}
+      />}
       <Calendar
         localizer={localizer}
         events={events}

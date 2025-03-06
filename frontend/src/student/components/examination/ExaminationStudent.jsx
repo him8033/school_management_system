@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import axios from 'axios';
 import { baseApi } from '../../../environment.js';
 
@@ -7,6 +7,7 @@ export default function ExaminationStudent() {
   const [examinations, setExaminations] = React.useState([]);
   const [selectedClass, setSelectedClass] = React.useState("");
   const [className, setClassName] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
 
   const dateFormat = (dateData) => {
     const date = new Date(dateData);
@@ -18,13 +19,16 @@ export default function ExaminationStudent() {
       if (selectedClass) {
         const response = await axios.get(`${baseApi}/examination/class/${selectedClass}`);
         setExaminations(response.data.examinations);
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in fetching Examination from examination component", error);
+      setLoading(false);
+
     }
   }
 
-  const fetchStudentDetails = async() => {
+  const fetchStudentDetails = async () => {
     try {
       const response = await axios.get(`${baseApi}/student/fetch-single`);
       // console.log(response)
@@ -57,7 +61,15 @@ export default function ExaminationStudent() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {examinations.map((examination) => (
+            {loading ? (
+              [...Array(5)].map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row"><Skeleton width="120px" /></TableCell>
+                  <TableCell align="right"><Skeleton width="100px" /></TableCell>
+                  <TableCell align="right"><Skeleton width="120px" /></TableCell>
+                </TableRow>
+              ))
+            ) : examinations.length > 0 ? (examinations.map((examination) => (
               <TableRow
                 key={examination._id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -69,7 +81,13 @@ export default function ExaminationStudent() {
                 <TableCell align="right">{examination.examType}</TableCell>
 
               </TableRow>
-            ))}
+            ))) : (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Typography variant="h6">There is no Examination Available</Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Box, TextField } from '@mui/material';
+import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Box, TextField, Skeleton } from '@mui/material';
 import { useFormik } from 'formik';
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
@@ -14,6 +14,7 @@ export default function Teachers() {
   const [classes, setClasses] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
   const [editId, setEditId] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   const addImage = (event) => {
     const file = event.target.files[0];
@@ -163,8 +164,10 @@ export default function Teachers() {
     axios.get(`${baseApi}/teacher/fetch-with-query`, { params })
       .then(res => {
         setTeachers(res.data.teachers);
+        setLoading(false);
       }).catch(err => {
         console.log("Error in fetchig Teachers");
+        setLoading(false);
       })
   }
 
@@ -304,41 +307,56 @@ export default function Teachers() {
       </Box>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: '20px', mt: '40px' }}>
-        {teachers && teachers.map(teacher => {
-          return (
-            <Card key={teacher._id} sx={{ maxWidth: 345, ml: '25px' }}>
-              <CardActionArea>
-                <CardMedia
-                  component="img"
-                  height="340"
-                  image={`${teacher.teacher_image}`}
-                  alt={teacher.name}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Name: </span>{teacher.name}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>E-mail: </span>{teacher.email}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Qualification: </span>{teacher.qualification}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Age: </span>{teacher.age}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Gender: </span>{teacher.gender}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <Button onClick={() => { handleEdit(teacher._id) }} sx={{ ml: '25px' }}><EditIcon /></Button>
-              <Button onClick={() => { handleDelete(teacher._id) }} sx={{ ml: '25px', color: 'red' }}><DeleteIcon /></Button>
+        {loading ? (
+          Array.from(new Array(5)).map((_, index) => (
+            <Card key={index} sx={{ maxWidth: 345, ml: '25px' }}>
+              <Skeleton variant='rectangular' width={345} height={340} />
+              <CardContent>
+                <Skeleton variant='text' width={200} height={40} />
+                <Skeleton variant='text' width={250} height={30} />
+                <Skeleton variant='text' width={150} height={30} />
+                <Skeleton variant='text' width={100} height={30} />
+              </CardContent>
             </Card>
-          );
-        })}
+          ))
+        ) : teachers && teachers.length > 0 ?
+          (teachers.map(teacher => {
+            return (
+              <Card key={teacher._id} sx={{ maxWidth: 345, ml: '25px' }}>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    height="340"
+                    image={`${teacher.teacher_image}`}
+                    alt={teacher.name}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Name: </span>{teacher.name}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>E-mail: </span>{teacher.email}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Qualification: </span>{teacher.qualification}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Age: </span>{teacher.age}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Gender: </span>{teacher.gender}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+                <Button onClick={() => { handleEdit(teacher._id) }} sx={{ ml: '25px' }}><EditIcon /></Button>
+                <Button onClick={() => { handleDelete(teacher._id) }} sx={{ ml: '25px', color: 'red' }}><DeleteIcon /></Button>
+              </Card>
+            );
+          })) : (
+            <Typography variant='h4' sx={{ m: 'auto' }}>No teachers available.</Typography>
+          )}
       </Box>
 
     </Box>

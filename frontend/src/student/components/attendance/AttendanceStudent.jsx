@@ -4,7 +4,7 @@ import { baseApi } from '../../../environment.js';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -23,6 +23,7 @@ export default function AttendanceStudent() {
   const [present, setPresent] = useState(0);
   const [absent, setAbsent] = useState(0);
   const [studentId, setStudentId] = useState("");
+  const [loading, setLoading] = React.useState(true);
 
   const convertDate = (dateData) => {
     const date = new Date(dateData);
@@ -57,8 +58,10 @@ export default function AttendanceStudent() {
       });
       setPresent(presentCount);
       setAbsent(absentCount);
+      setLoading(false);
     } catch (error) {
       console.log("Error in fetching student Attendance.", error);
+      setLoading(false);
     }
   }
 
@@ -71,7 +74,7 @@ export default function AttendanceStudent() {
     <>
       <div>AttendanceDetails</div>
       <Grid container spacing={2}>
-        <Grid size={6}>
+        <Grid xs={12} sm={6}>
           <Item>
             <PieChart
               series={[
@@ -87,7 +90,7 @@ export default function AttendanceStudent() {
             />
           </Item>
         </Grid>
-        <Grid size={6}>
+        <Grid xs={12} sm={6}>
           <Item>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -98,7 +101,13 @@ export default function AttendanceStudent() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {attendanceData.map((attendance) => (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell><Skeleton variant="text" width={120} /></TableCell>
+                      <TableCell align="right"><Skeleton variant="text" width={120} /></TableCell>
+                    </TableRow>
+                  ) : attendanceData.length > 0 ?
+                  (attendanceData.map((attendance) => (
                     <TableRow
                       key={attendance._id}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -106,7 +115,13 @@ export default function AttendanceStudent() {
                       <TableCell component="th" scope="row">{convertDate(attendance.date)}</TableCell>
                       <TableCell align="right">{attendance.status}</TableCell>
                     </TableRow>
-                  ))}
+                  ))) : (
+                    <TableRow>
+                      <TableCell colSpan={2} align="center">
+                        <Typography variant="h6">There is no Examination Available</Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

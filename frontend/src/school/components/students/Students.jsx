@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent } from '@mui/material';
+import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Skeleton } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useFormik } from 'formik';
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
@@ -16,6 +16,7 @@ export default function Students() {
   const [classes, setClasses] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
   const [editId, setEditId] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   const addImage = (event) => {
     const file = event.target.files[0];
@@ -180,8 +181,10 @@ export default function Students() {
     axios.get(`${baseApi}/student/fetch-with-query`, { params })
       .then(res => {
         setStudents(res.data.students);
+        setLoading(false);
       }).catch(err => {
         console.log("Error in fetchig Students");
+        setLoading(false);
       })
   }
 
@@ -367,48 +370,63 @@ export default function Students() {
       </Box>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: '20px', mt: '40px' }}>
-        {students && students.map(student => {
-          return (
-            <Card key={student._id} sx={{ maxWidth: 345, ml: '25px' }}>
-              <CardActionArea>
-                <CardMedia
-                  component="img"
-                  height="340"
-                  image={`${student.student_image}`}
-                  alt={student.name}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Name: </span>{student.name}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}> 
-                  {/* maxWidth: '300px', wordBreak: 'break-word' */}
-                    <span style={{ fontWeight: '700' }}>E-mail: </span>{student.email}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Class: </span>{student.student_class.class_text}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Age: </span>{student.age}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Gender: </span>{student.gender}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Guardian: </span>{student.guardian}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <span style={{ fontWeight: '700' }}>Guardian Phone: </span>{student.guardian_phone}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <Button onClick={() => { handleEdit(student._id) }} sx={{ ml: '25px' }}><EditIcon /></Button>
-              <Button onClick={() => { handleDelete(student._id) }} sx={{ ml: '25px', color: 'red' }}><DeleteIcon /></Button>
+        {loading ? (
+          Array.from(new Array(5)).map((_, index) => (
+            <Card key={index} sx={{ maxWidth: 345, ml: '25px' }}>
+              <Skeleton variant='rectangular' width={345} height={340} />
+              <CardContent>
+                <Skeleton variant='text' width={200} height={40} />
+                <Skeleton variant='text' width={250} height={30} />
+                <Skeleton variant='text' width={150} height={30} />
+                <Skeleton variant='text' width={100} height={30} />
+              </CardContent>
             </Card>
-          );
-        })}
+          ))
+        ) : students && students.length > 0 ?
+          (students.map(student => {
+            return (
+              <Card key={student._id} sx={{ maxWidth: 345, ml: '25px' }}>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    height="340"
+                    image={`${student.student_image}`}
+                    alt={student.name}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Name: </span>{student.name}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
+                      {/* maxWidth: '300px', wordBreak: 'break-word' */}
+                      <span style={{ fontWeight: '700' }}>E-mail: </span>{student.email}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Class: </span>{student.student_class.class_text}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Age: </span>{student.age}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Gender: </span>{student.gender}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Guardian: </span>{student.guardian}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="div">
+                      <span style={{ fontWeight: '700' }}>Guardian Phone: </span>{student.guardian_phone}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+                <Button onClick={() => { handleEdit(student._id) }} sx={{ ml: '25px' }}><EditIcon /></Button>
+                <Button onClick={() => { handleDelete(student._id) }} sx={{ ml: '25px', color: 'red' }}><DeleteIcon /></Button>
+              </Card>
+            );
+          })) : (
+            <Typography variant='h4' sx={{ m: 'auto' }}>No studnets available.</Typography>
+          )}
       </Box>
 
     </Box>

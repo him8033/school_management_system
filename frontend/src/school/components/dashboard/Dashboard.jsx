@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
-import { Typography, Box, Button, TextField, CardMedia } from '@mui/material'
+import { Typography, Box, Button, TextField, CardMedia, Skeleton } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [school, setSchool] = useState(null);
   const [schoolName, setSchoolName] = useState(null);
   const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   // Image Handling
   const [file, setFile] = useState(null);
@@ -66,8 +67,10 @@ export default function Dashboard() {
         // console.log(res);
         setSchool(res.data.school);
         setSchoolName(res.data.school.school_name);
+        setLoading(false);
       }).catch(err => {
         console.log("Error: ", err);
+        setLoading(false);
       })
   }
 
@@ -111,37 +114,47 @@ export default function Dashboard() {
         </Box>
       }
 
-      {school &&
+      {loading ? (
+        <>
+          <Skeleton variant='rectangular' width='100%' height={500} />
+          <Box sx={{ position: "absolute", bottom: 80, left: "50%", transform: "translateX(-50%)" }}>
+            <Skeleton variant='text' width={600} height={80} />
+          </Box>
+          <Box component={'div'} sx={{ position: 'absolute', bottom: '70px', right: '40px', height: '60px', width: '60px' }}>
+            <Skeleton variant='circular' width={60} height={60} />
+          </Box>
+        </>
+      ) : school &&
+      <Box sx={{
+        position: 'relative',
+        height: '500px',
+        width: '100%',
+        background: `url(${school.school_image})`,
+        backgroundSize: 'cover',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
         <Box sx={{
-          position: 'relative',
-          height: '500px',
-          width: '100%',
-          background: `url(${school.school_image})`,
-          backgroundSize: 'cover',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <Box sx={{
-            position: "absolute",
-            bottom: 20,
-            left: "50%",
-            color: 'white',
-            transform: "translateX(-50%)",
-            bgcolor: "rgba(0, 0, 0, 0.7)",
-            padding: "10px 20px",
-            borderRadius: 1,
-          }}
-          >
-            <Typography variant="h5">{school.school_name}</Typography>
-          </Box>
-
-          <Box component={'div'} sx={{ position: 'absolute', bottom: '10px', right: '10px', height: '50px', width: '50px' }}>
-            <Button sx={{ borderRadius: '50%', background: '#fff', color: 'black', height: '60px' }} onClick={() => { setEdit(true) }}>
-              <EditIcon />
-            </Button>
-          </Box>
+          position: "absolute",
+          bottom: 20,
+          left: "50%",
+          color: 'white',
+          transform: "translateX(-50%)",
+          bgcolor: "rgba(0, 0, 0, 0.7)",
+          padding: "10px 20px",
+          borderRadius: 1,
+        }}
+        >
+          <Typography variant="h5">{school.school_name}</Typography>
         </Box>
+
+        <Box component={'div'} sx={{ position: 'absolute', bottom: '20px', right: '30px', height: '50px', width: '50px' }}>
+          <Button sx={{ borderRadius: '50%', background: '#fff', color: 'black', height: '60px' }} onClick={() => { setEdit(true) }}>
+            <EditIcon />
+          </Button>
+        </Box>
+      </Box>
       }
     </>
   )

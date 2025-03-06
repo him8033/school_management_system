@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material'
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { noticeSchema } from '../../../yupSchema/noticeSchema.js'
@@ -9,14 +9,14 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
 export default function Notice() {
-
+  const [loading, setLoading] = React.useState(true);
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
   const handleMessageClose = () => {
     setMessage('');
   }
 
-  const [noticees, setNotices] = useState([]);
+  const [notices, setNotices] = useState([]);
   const [edit, setEdit] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -83,9 +83,11 @@ export default function Notice() {
     axios.get(`${baseApi}/notice/all`)
       .then(res => {
         setNotices(res.data.data);
+        setLoading(false);
         // console.log(res)
       }).catch(err => {
         console.log("Error in fetching all Notices", err)
+        setLoading(false);
       })
   }
   useEffect(() => {
@@ -146,8 +148,8 @@ export default function Notice() {
           </Select>
         </FormControl>
         {formik.touched.audience && formik.errors.audience && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-            {formik.errors.audience}
-          </p>}
+          {formik.errors.audience}
+        </p>}
 
         <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
         {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
@@ -155,19 +157,30 @@ export default function Notice() {
       </Box>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-        {noticees && noticees.map(x => {
-          return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
-            <Box component={'div'}>
-              <Typography variant='h4'><b>Title: </b>{x.title}</Typography>
-              <Typography variant='h4'><b>Message: </b>{x.message}</Typography>
-              <Typography variant='h4'><b>Audience: </b>{x.audience}</Typography>
-            </Box>
-            <Box component={'div'}>
-              <Button onClick={() => { handleEdit(x) }}><EditIcon /></Button>
-              <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
-            </Box>
-          </Paper>)
-        })}
+        {loading ? (
+          Array.from(new Array(5)).map((_, index) => (
+            <Paper key={index} sx={{ m: 2, p: 2, width: 500 }}>
+              <Skeleton variant="text" width={200} height={60} />
+              <Skeleton variant="text" width={250} height={40} />
+              <Skeleton variant="text" width={180} height={40} />
+            </Paper>
+          ))
+        ) : notices && notices.length > 0 ?
+          (notices.map(x => {
+            return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
+              <Box component={'div'}>
+                <Typography variant='h4'><b>Title: </b>{x.title}</Typography>
+                <Typography variant='h4'><b>Message: </b>{x.message}</Typography>
+                <Typography variant='h4'><b>Audience: </b>{x.audience}</Typography>
+              </Box>
+              <Box component={'div'}>
+                <Button onClick={() => { handleEdit(x) }}><EditIcon /></Button>
+                <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
+              </Box>
+            </Paper>)
+          })) : (
+            <Typography variant='h4' sx={{ m: 'auto' }}>No notices available.</Typography>
+          )}
       </Box>
     </>
   )

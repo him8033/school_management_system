@@ -12,21 +12,7 @@ export default function ScheduleTeacher() {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
   const date = new Date();
-  const myEventsList = [
-    {
-      id: 1,
-      title: "Subject: FCET, Teacher: Rajiv",
-      start: new Date(date.setHours(11, 30)),
-      end: new Date(date.setHours(12, 30))
-    },
-
-    {
-      id: 2,
-      title: "Subject: POM, Teacher: Rajesh",
-      start: new Date(date.setHours(13, 30)),
-      end: new Date(date.setHours(14, 30))
-    },
-  ]
+  const myEventsList = []
 
   const [events, setEvents] = useState(myEventsList);
 

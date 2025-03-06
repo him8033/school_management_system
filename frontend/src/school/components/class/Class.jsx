@@ -1,4 +1,4 @@
-import { Box, Button, Paper, TextField, Typography } from '@mui/material'
+import { Box, Button, Paper, Skeleton, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { classSchema } from '../../../yupSchema/classSchema.js'
@@ -12,6 +12,7 @@ export default function Class() {
 
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
   const handleMessageClose = () => {
     setMessage('');
   }
@@ -83,9 +84,11 @@ export default function Class() {
     axios.get(`${baseApi}/class/all`)
       .then(res => {
         setClasses(res.data.data);
+        setLoading(false);
         // console.log(res)
       }).catch(err => {
         console.log("Error in fetching all Classes", err)
+        setLoading(false);
       })
   }
   useEffect(() => {
@@ -94,7 +97,7 @@ export default function Class() {
 
   return (
     <>
-      <Typography variant='h3' sx={{textAlign: 'center', fontWeight: '700'}}>Class</Typography>
+      <Typography variant='h3' sx={{ textAlign: 'center', fontWeight: '700' }}>Class</Typography>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
       <Box
         component="form"
@@ -129,23 +132,33 @@ export default function Class() {
           {formik.errors.class_num}
         </p>}
 
-        <Button sx={{width: '120px'}} type='submit' variant='contained'>Submit</Button>
-        {edit && <Button sx={{width: '120px'}} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
+        <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
+        {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
 
       </Box>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-        {classes && classes.map(x => {
-          return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
-            <Box component={'div'}>
-              <Typography variant='h4'> Class: {x.class_text} [{x.class_num}]</Typography>
-            </Box>
-            <Box component={'div'}>
-              <Button onClick={() => { handleEdit(x) }}><EditIcon /></Button>
-              <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
-            </Box>
-          </Paper>)
-        })}
+        {loading ? (
+          Array.from(new Array(7)).map((_, index) => (
+            <Paper key={index} sx={{ m: 2, p: 2, width: '300px', height: '100px' }}>
+              <Skeleton variant='text' width={200} height={40} />
+              <Skeleton variant='rectangular' width={100} height={30} sx={{ mt: 1 }} />
+            </Paper>
+          ))
+        ) : classes && classes.length > 0 ?
+          (classes.map(x => {
+            return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
+              <Box component={'div'}>
+                <Typography variant='h4'> Class: {x.class_text} [{x.class_num}]</Typography>
+              </Box>
+              <Box component={'div'}>
+                <Button onClick={() => { handleEdit(x) }}><EditIcon /></Button>
+                <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
+              </Box>
+            </Paper>)
+          })) : (
+            <Typography variant='h4' sx={{ m: 'auto' }}>No classes available.</Typography>
+          )}
       </Box>
     </>
   )

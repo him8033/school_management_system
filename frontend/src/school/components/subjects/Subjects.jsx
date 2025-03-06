@@ -1,4 +1,4 @@
-import { Box, Button, Paper, TextField, Typography } from '@mui/material'
+import { Box, Button, Paper, Skeleton, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { subjectSchema } from '../../../yupSchema/subjectSchema.js'
@@ -12,6 +12,8 @@ export default function Subjects() {
 
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  
   const handleMessageClose = () => {
     setMessage('');
   }
@@ -83,9 +85,11 @@ export default function Subjects() {
     axios.get(`${baseApi}/subject/all`)
       .then(res => {
         setSubjects(res.data.data);
+        setLoading(false);
         // console.log(res)
       }).catch(err => {
         console.log("Error in fetching all Subjects", err)
+        setLoading(false);
       })
   }
   useEffect(() => {
@@ -94,7 +98,7 @@ export default function Subjects() {
 
   return (
     <>
-      <Typography variant='h3' sx={{textAlign: 'center', fontWeight: '700'}}>Subject</Typography>
+      <Typography variant='h3' sx={{ textAlign: 'center', fontWeight: '700' }}>Subject</Typography>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
       <Box
         component="form"
@@ -129,13 +133,21 @@ export default function Subjects() {
           {formik.errors.subject_codename}
         </p>}
 
-        <Button sx={{width: '120px'}} type='submit' variant='contained'>Submit</Button>
-        {edit && <Button sx={{width: '120px'}} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel Edit</Button>}
+        <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
+        {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel Edit</Button>}
 
       </Box>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-        {subjects && subjects.map(x => {
+        {loading ? (
+          Array.from(new Array(5)).map((_, index) => (
+            <Paper key={index} sx={{ m: 2, p: 2, width: '400px', height: '100px' }}>
+              <Skeleton variant='text' width={250} height={40} />
+              <Skeleton variant='rectangular' width={150} height={30} sx={{ mt: 1 }} />
+            </Paper>
+          ))
+        ) : subjects && subjects.length > 0 ?
+        (subjects.map(x => {
           return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
             <Box component={'div'}>
               <Typography variant='h4'> Subject: {x.subject_name} [{x.subject_codename}]</Typography>
@@ -145,7 +157,9 @@ export default function Subjects() {
               <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
             </Box>
           </Paper>)
-        })}
+        })) : (
+          <Typography variant='h4' sx={{ m: 'auto' }}>No subjects available.</Typography>
+        )}
       </Box>
     </>
   )

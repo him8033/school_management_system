@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -14,6 +14,7 @@ import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnac
 export default function Examination() {
   const [examinations, setExaminations] = React.useState([]);
   const [selectedClass, setSelectedClass] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
   const handleMessageClose = () => {
@@ -39,8 +40,8 @@ export default function Examination() {
     formik.resetForm();
   }
 
-  const handleDelete = async(id) => {
-    if(confirm("Are you sure! You want to Delete?")){
+  const handleDelete = async (id) => {
+    if (confirm("Are you sure! You want to Delete?")) {
       try {
         const response = await axios.delete(`${baseApi}/examination/delete/${id}`);
         // console.log("Delete Examination", response);
@@ -64,7 +65,7 @@ export default function Examination() {
     initialValues: initialValues,
     validationSchema: examinationSchema,
     onSubmit: async (values) => {
-      if(editId){
+      if (editId) {
         try {
           const response = await axios.patch(`${baseApi}/examination/update/${editId}`, {
             date: values.date,
@@ -81,7 +82,7 @@ export default function Examination() {
           setMessageType("error");
           console.log("Error in Updating Examination from examination component", error)
         }
-      }else{
+      } else {
         try {
           const response = await axios.post(`${baseApi}/examination/create`, {
             date: values.date,
@@ -117,9 +118,15 @@ export default function Examination() {
     try {
       const response = await axios.get(`${baseApi}/class/all`);
       setClasses(response.data.data);
-      setSelectedClass(response.data.data[0]._id);
+      if(response.data.data.length > 0){
+        setSelectedClass(response.data.data[0]._id);
+      }else{
+        setSelectedClass("");
+        setExaminations([]);
+        setLoading(false);
+      }
     } catch (error) {
-      console.log("Error in fetching Subject from examination component", error);
+      console.log("Error in fetching Classes from examination component", error);
     }
   }
 
@@ -128,9 +135,11 @@ export default function Examination() {
       if (selectedClass) {
         const response = await axios.get(`${baseApi}/examination/class/${selectedClass}`);
         setExaminations(response.data.examinations);
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in fetching Examination from examination component", error);
+      setLoading(false);
     }
   }
 
@@ -149,9 +158,9 @@ export default function Examination() {
       <Paper sx={{ mb: '20px' }}>
         <Box>
           <FormControl sx={{ mt: '10px', minWidth: '210px' }} >
-            <InputLabel id="demo-simple-select-label">Subject</InputLabel>
+            <InputLabel id="demo-simple-select-label">Class</InputLabel>
             <Select
-              label="Subject"
+              label="Class"
               value={selectedClass}
               onChange={(e) => { setSelectedClass(e.target.value) }}
             >
@@ -236,22 +245,38 @@ export default function Examination() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {examinations.map((examination) => (
-              <TableRow
-                key={examination._id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {dateFormat(examination.examDate)}
-                </TableCell>
-                <TableCell align="right">{examination.subject.subject_name}</TableCell>
-                <TableCell align="right">{examination.examType}</TableCell>
-                <TableCell align="right">
-                  <Button variant='contained' sx={{background: 'green', mr: '5px'}} onClick={() => {handleEdit(examination._id)}}>Edit</Button>
-                  <Button variant='contained' sx={{background: 'red'}} onClick={() => {handleDelete(examination._id)}}>Delete</Button>
+            {loading ? (
+              Array.from(new Array(5)).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell><Skeleton variant="text" width={100} /></TableCell>
+                  <TableCell align="right"><Skeleton variant="text" width={120} /></TableCell>
+                  <TableCell align="right"><Skeleton variant="text" width={100} /></TableCell>
+                  <TableCell align="right"><Skeleton variant="rectangular" width={150} height={30} /></TableCell>
+                </TableRow>
+              ))
+            ) : examinations && examinations.length > 0 ? (
+              examinations.map((examination) => (
+                <TableRow
+                  key={examination._id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {dateFormat(examination.examDate)}
+                  </TableCell>
+                  <TableCell align="right">{examination.subject.subject_name}</TableCell>
+                  <TableCell align="right">{examination.examType}</TableCell>
+                  <TableCell align="right">
+                    <Button variant='contained' sx={{ background: 'green', mr: '5px' }} onClick={() => { handleEdit(examination._id) }}>Edit</Button>
+                    <Button variant='contained' sx={{ background: 'red' }} onClick={() => { handleDelete(examination._id) }}>Delete</Button>
+                  </TableCell>
+                </TableRow>
+              ))) : (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  <Typography variant="h6">No examinations available for this Class</Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>

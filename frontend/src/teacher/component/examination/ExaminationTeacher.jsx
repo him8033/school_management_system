@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Alert, Box, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import axios from 'axios';
 import { baseApi } from '../../../environment.js';
 
 export default function ExaminationTeacher() {
   const [examinations, setExaminations] = React.useState([]);
   const [selectedClass, setSelectedClass] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
 
   const dateFormat = (dateData) => {
     const date = new Date(dateData);
@@ -28,9 +29,11 @@ export default function ExaminationTeacher() {
       if (selectedClass) {
         const response = await axios.get(`${baseApi}/examination/class/${selectedClass}`);
         setExaminations(response.data.examinations);
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in fetching Examination from examination component", error);
+      setLoading(false);
     }
   }
 
@@ -47,11 +50,14 @@ export default function ExaminationTeacher() {
       <Paper sx={{ mb: '20px' }}>
         <Box>
           <FormControl sx={{ mt: '10px', minWidth: '210px' }} >
-            <InputLabel id="demo-simple-select-label">Subject</InputLabel>
+            <InputLabel id="demo-simple-select-label">Class</InputLabel>
             <Select
-              label="Subject"
+              label="Class"
               value={selectedClass}
-              onChange={(e) => { setSelectedClass(e.target.value) }}
+              onChange={(e) => {
+                setSelectedClass(e.target.value);
+                setLoading(true);
+              }}
             >
               <MenuItem value="">Select Class</MenuItem>
               {classes && classes.map(x => {
@@ -72,7 +78,15 @@ export default function ExaminationTeacher() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {examinations.map((examination) => (
+            {loading ? (
+              [...Array(5)].map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row"><Skeleton width="120px" /></TableCell>
+                  <TableCell align="right"><Skeleton width="100px" /></TableCell>
+                  <TableCell align="right"><Skeleton width="120px" /></TableCell>
+                </TableRow>
+              ))
+            ) : examinations.length > 0 ? (examinations.map((examination) => (
               <TableRow
                 key={examination._id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -84,7 +98,13 @@ export default function ExaminationTeacher() {
                 <TableCell align="right">{examination.examType}</TableCell>
 
               </TableRow>
-            ))}
+            ))) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  <Typography variant="h6">There is no Examination Available for this Class</Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

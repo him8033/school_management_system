@@ -50,7 +50,6 @@ export default function Attendee({ classId, handleMessage, message }) {
     return (
         <>
             <Box>
-                <div>Attendee</div>
                 {attendee &&
                     <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'center'}} component={'div'}>
                         <Typography variant='h5'>Attendee Teacher :</Typography>

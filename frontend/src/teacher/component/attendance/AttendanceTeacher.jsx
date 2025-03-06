@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
-import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Alert, Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check'
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
@@ -9,6 +9,7 @@ export default function AttendanceTeacher() {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [attendanceStatus, setAttendanceStatus] = useState({});
+  const [loading, setLoading] = React.useState(true);
 
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
@@ -95,9 +96,11 @@ export default function AttendanceTeacher() {
         } else {
           setAttendanceChecked(true);
         }
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in checking Attendance", error);
+      setLoading(false);
     }
   }
 
@@ -123,7 +126,8 @@ export default function AttendanceTeacher() {
                   setSelectedClass(e.target.value);
                   setStudents([]);
                   setAttendanceStatus({});
-                  setAttendanceChecked(false)
+                  setAttendanceChecked(false);
+                  setLoading(true);
                 }}
               >
                 <MenuItem value="">Select Class</MenuItem>
@@ -137,7 +141,20 @@ export default function AttendanceTeacher() {
           You are not Attendee of any Class
         </Alert>}
 
-      {students.length > 0 ? <TableContainer component={Paper}>
+      {loading ? (
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableBody>
+              {Array.from({ length: 6 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row"><Skeleton width="150px" /></TableCell>
+                  <TableCell align="right"><Skeleton width="120px" /></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : students.length > 0 ? <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -173,7 +190,7 @@ export default function AttendanceTeacher() {
         <Button variant='contained' onClick={submitAttendance}>Take Attendance</Button>
       </TableContainer> : <>
         <Alert icon={<CheckIcon fontSize='inherit' />} severity='warning'>
-          {attendanceChecked ? "Attendance Already Taken For this Class" : "There is no Students in this Class."}
+          {attendanceChecked ? "Attendance Already Taken For this Class" : "There is no Students in this Class. Check Another Class"}
         </Alert>
       </>}
     </>

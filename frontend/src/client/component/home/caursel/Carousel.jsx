@@ -1,5 +1,5 @@
 import React from 'react'
-import { Typography, Box } from '@mui/material'
+import { Typography, Box, Skeleton } from '@mui/material'
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -11,13 +11,16 @@ import { baseApi } from '../../../../environment.js'
 
 export default function Carousel() {
   const [schools, setSchools] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     axios.get(`${baseApi}/school/all`)
       .then(res => {
         setSchools(res.data.schools);
+        setLoading(false);
       }).catch(err => {
         console.log("Error: ", err);
+        setLoading(false);
       })
   }, [])
 
@@ -33,31 +36,37 @@ export default function Carousel() {
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           style={{ width: "100%", height: "70vh", minHeight: "400px" }}
         >
-          {schools.map((school, index) => (
-            <SwiperSlide key={index}>
-              <Box sx={{ position: "relative", textAlign: "center", color: "white" }}
-              >
-                <img
-                  src={`${school.school_image}?w=248&fit=crop&auto=format`}
-                  alt={school.school_name}
-                  style={{ width: "100%", height: "70vh", minHeight: "400px", objectFit: "cover" }}
-                />
-                <Box sx={{
-                  position: "absolute",
-                  bottom: 20,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  bgcolor: "rgba(0, 0, 0, 0.6)",
-                  padding: "10px 20px",
-                  borderRadius: 1,
-                }}
+          {loading
+            ? [...Array(3)].map((_, index) => (
+              <SwiperSlide key={index}>
+                <Skeleton variant='rectangular' width='100%' height='70vh' sx={{ minHeight: '400px' }} />
+              </SwiperSlide>
+            ))
+            : schools.map((school, index) => (
+              <SwiperSlide key={index}>
+                <Box sx={{ position: "relative", textAlign: "center", color: "white" }}
                 >
-                  <Typography variant="h5">{school.school_name}</Typography>
-                  {/* <Typography variant="body1">{item.description}</Typography> */}
+                  <img
+                    src={`${school.school_image}?w=248&fit=crop&auto=format`}
+                    alt={school.school_name}
+                    style={{ width: "100%", height: "70vh", minHeight: "400px", objectFit: "cover" }}
+                  />
+                  <Box sx={{
+                    position: "absolute",
+                    bottom: 20,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    bgcolor: "rgba(0, 0, 0, 0.6)",
+                    padding: "10px 20px",
+                    borderRadius: 1,
+                  }}
+                  >
+                    <Typography variant="h5">{school.school_name}</Typography>
+                    {/* <Typography variant="body1">{item.description}</Typography> */}
+                  </Box>
                 </Box>
-              </Box>
-            </SwiperSlide>
-          ))}
+              </SwiperSlide>
+            ))}
         </Swiper>
       </Box>
     </>
