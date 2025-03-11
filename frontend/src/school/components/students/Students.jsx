@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Skeleton } from '@mui/material';
+import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Skeleton, Paper, InputAdornment } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useFormik } from 'formik';
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
@@ -9,6 +9,7 @@ import { studentEditSchema, studentSchema } from '../../../yupSchema/studentSche
 import { baseApi } from '../../../environment.js'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function Students() {
   const [file, setFile] = React.useState(null);
@@ -17,6 +18,10 @@ export default function Students() {
   const [edit, setEdit] = React.useState(false);
   const [editId, setEditId] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [students, setStudents] = React.useState([]);
+  const [message, setMessage] = React.useState('');
+  const [messageType, setMessageType] = React.useState('');
+  const [params, setParams] = React.useState({});
 
   const addImage = (event) => {
     const file = event.target.files[0];
@@ -24,6 +29,7 @@ export default function Students() {
     setFile(file);
   }
 
+  const formRef = React.useRef(null);
   const fileInputRef = React.useRef(null);
   const handleClearFile = () => {
     if (fileInputRef.current) {
@@ -40,8 +46,11 @@ export default function Students() {
           // console.log(res);
           setMessage(res.data.message);
           setMessageType('success');
-        }).catch(err => {
-          console.log("Error: ", err);
+        }).catch((error) => {
+          console.error(
+            `%c[ERROR in Deleting Student]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
           setMessage("Error in Deleting Student.");
           setMessageType('error');
         })
@@ -66,6 +75,11 @@ export default function Students() {
     formik.setFieldValue('gender', filteredStudent[0].gender);
     formik.setFieldValue('guardian', filteredStudent[0].guardian);
     formik.setFieldValue('guardian_phone', filteredStudent[0].guardian_phone);
+
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      fileInputRef.current?.focus();
+    }, 500);
   }
 
   const initialValues = {
@@ -107,8 +121,11 @@ export default function Students() {
             formik.resetForm();
             handleClearFile();
             cancelEdit();
-          }).catch(err => {
-            console.log("Error: ", err);
+          }).catch((error) => {
+            console.error(
+              `%c[ERROR in Updating Student]:- ${error.name || "Unknown Error"} `,
+              "color: red; font-weight: bold; font-size: 14px;", error
+            );
             setMessage("Error in Updating Student.");
             setMessageType('error');
           })
@@ -132,8 +149,11 @@ export default function Students() {
               setMessageType('success');
               formik.resetForm();
               handleClearFile();
-            }).catch(err => {
-              console.log("Error: ", err);
+            }).catch((error) => {
+              console.error(
+                `%c[ERROR in Adding New Student]:- ${error.name || "Unknown Error"} `,
+                "color: red; font-weight: bold; font-size: 14px;", error
+              );
               setMessage("Error in Creating New Student.");
               setMessageType('error');
             })
@@ -145,8 +165,6 @@ export default function Students() {
     }
   })
 
-  const [message, setMessage] = React.useState('');
-  const [messageType, setMessageType] = React.useState('');
   const handleMessageClose = () => {
     setMessage('');
   }
@@ -155,12 +173,13 @@ export default function Students() {
     axios.get(`${baseApi}/class/all`)
       .then(res => {
         setClasses(res.data.data);
-      }).catch(err => {
-        console.log("Error in fetchig Classes");
+      }).catch((error) => {
+        console.error(
+          `%c[ERROR in Fetching Classes]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
       })
   }
-
-  const [params, setParams] = React.useState({});
 
   const handleClass = (e) => {
     setParams((prevParams) => ({
@@ -176,14 +195,16 @@ export default function Students() {
     }))
   }
 
-  const [students, setStudents] = React.useState([]);
   const fetchStudents = () => {
     axios.get(`${baseApi}/student/fetch-with-query`, { params })
       .then(res => {
         setStudents(res.data.students);
         setLoading(false);
-      }).catch(err => {
-        console.log("Error in fetchig Students");
+      }).catch((error) => {
+        console.error(
+          `%c[ERROR in Fetching Students]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
   }
@@ -196,162 +217,172 @@ export default function Students() {
   return (
     <Box component={'div'} sx={{
       height: "100%",
-      paddingTop: "50px",
+      // paddingTop: "50px",
       paddingBottom: "50px"
     }}>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
-      <Typography variant='h2' sx={{ textAlign: "center", paddingBottom: "25px" }}>Students</Typography>
-      <Box
-        component="form"
-        sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', background: '#fff' }}
-        noValidate
-        autoComplete="off"
-        onSubmit={formik.handleSubmit}
-      >
-        {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Edit Student</Typography> :
-          <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Add New Student</Typography>}
-        <Typography>Add Student Image</Typography>
-        <TextField
-          type='file'
-          inputRef={fileInputRef}
-          onChange={(event) => { addImage(event) }}
-        />
-        {imageUrl && <Box>
-          <CardMedia component={'img'} height={'240px'} image={imageUrl} />
-        </Box>}
+      <Typography variant='h4' sx={{ fontWeight: '700' }}>Students</Typography>
+      <Paper>
+        <Box
+          component="form"
+          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
+          noValidate
+          autoComplete="off"
+          onSubmit={formik.handleSubmit}
+          ref={formRef}
+        >
+          {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Edit Student</Typography> :
+            <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Add New Student</Typography>}
+          <Typography>Add Student Image</Typography>
+          <TextField
+            type='file'
+            inputRef={fileInputRef}
+            onChange={(event) => { addImage(event) }}
+          />
+          {imageUrl && <Box>
+            <CardMedia component={'img'} height={'240px'} image={imageUrl} />
+          </Box>}
 
-        <TextField
-          name="name"
-          label="Student Name"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.name && formik.errors.name && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.name}
-        </p>}
-
-        <TextField
-          name="email"
-          label="E-mail"
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.email && formik.errors.email && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.email}
-        </p>}
-
-        <FormControl>
-          <InputLabel id="demo-simple-select-label">Student Class</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            name="student_class"
-            label="Student Class"
-            value={formik.values.student_class}
+          <TextField
+            name="name"
+            label="Student Name"
+            value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-          >
-            <MenuItem>Select Class</MenuItem>
-            {classes && classes.map(x => {
-              return (<MenuItem key={x._id} value={x._id}>{x.class_text} [{x.class_num}]</MenuItem>)
-            })}
-          </Select>
-        </FormControl>
-        {formik.touched.student_class && formik.errors.student_class && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.student_class}
-        </p>}
+          />
+          {formik.touched.name && formik.errors.name && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.name}
+          </p>}
 
-        <TextField
-          name="age"
-          label="Age"
-          value={formik.values.age}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.age && formik.errors.age && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.age}
-        </p>}
-
-        <FormControl>
-          <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            name="gender"
-            label="Gender"
-            value={formik.values.gender}
+          <TextField
+            name="email"
+            label="E-mail"
+            value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-          >
-            <MenuItem value={'male'}>Male</MenuItem>
-            <MenuItem value={'female'}>Female</MenuItem>
-            <MenuItem value={'other'}>Other</MenuItem>
-          </Select>
-        </FormControl>
-        {formik.touched.gender && formik.errors.gender && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.gender}
-        </p>}
+          />
+          {formik.touched.email && formik.errors.email && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.email}
+          </p>}
 
-        <TextField
-          name="guardian"
-          label="Guardian Name"
-          value={formik.values.guardian}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.guardian && formik.errors.guardian && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.guardian}
-        </p>}
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Student Class</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              name="student_class"
+              label="Student Class"
+              value={formik.values.student_class}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              <MenuItem>Select Class</MenuItem>
+              {classes && classes.map(x => {
+                return (<MenuItem key={x._id} value={x._id}>{x.class_text} [{x.class_num}]</MenuItem>)
+              })}
+            </Select>
+          </FormControl>
+          {formik.touched.student_class && formik.errors.student_class && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.student_class}
+          </p>}
 
-        <TextField
-          type='number'
-          name="guardian_phone"
-          label="Guardian PHone"
-          value={formik.values.guardian_phone}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.guardian_phone && formik.errors.guardian_phone && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.guardian_phone}
-        </p>}
+          <TextField
+            name="age"
+            label="Age"
+            value={formik.values.age}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.age && formik.errors.age && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.age}
+          </p>}
 
-        <TextField
-          type='password'
-          name="password"
-          label="Password"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.password && formik.errors.password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.password}
-        </p>}
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              name="gender"
+              label="Gender"
+              value={formik.values.gender}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              <MenuItem value={'male'}>Male</MenuItem>
+              <MenuItem value={'female'}>Female</MenuItem>
+              <MenuItem value={'other'}>Other</MenuItem>
+            </Select>
+          </FormControl>
+          {formik.touched.gender && formik.errors.gender && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.gender}
+          </p>}
 
-        <TextField
-          type='password'
-          name="confirm_password"
-          label="Confirm Password"
-          value={formik.values.confirm_password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.confirm_password && formik.errors.confirm_password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.confirm_password}
-        </p>}
+          <TextField
+            name="guardian"
+            label="Guardian Name"
+            value={formik.values.guardian}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.guardian && formik.errors.guardian && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.guardian}
+          </p>}
 
-        <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
-        {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
+          <TextField
+            type='number'
+            name="guardian_phone"
+            label="Guardian PHone"
+            value={formik.values.guardian_phone}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.guardian_phone && formik.errors.guardian_phone && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.guardian_phone}
+          </p>}
 
-      </Box>
+          <TextField
+            type='password'
+            name="password"
+            label="Password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.password && formik.errors.password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.password}
+          </p>}
 
+          <TextField
+            type='password'
+            name="confirm_password"
+            label="Confirm Password"
+            value={formik.values.confirm_password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.confirm_password && formik.errors.confirm_password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.confirm_password}
+          </p>}
+
+          <Button type='submit' variant='contained'>Submit</Button>
+          {edit && <Button onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
+
+        </Box>
+      </Paper>
+      
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mt: '40px' }}>
 
         <TextField
-          label="Search"
+          label="Search by Student Name"
           value={params.search ? params.search : ""}
           onChange={(e) => { handleSearch(e) }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
         />
 
         <FormControl sx={{ width: '180px', ml: '10px' }}>
@@ -428,7 +459,6 @@ export default function Students() {
             <Typography variant='h4' sx={{ m: 'auto' }}>No studnets available.</Typography>
           )}
       </Box>
-
     </Box>
   );
 }

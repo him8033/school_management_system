@@ -1,29 +1,23 @@
 import React, { useContext } from 'react'
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext.jsx'
+import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 
-function Navbar() {
+export default function Navbar() {
   const { user, authenticated } = useContext(AuthContext);
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [pages, setPages] = React.useState([
     { link: '/', component: 'Home' },
     { link: '/login', component: 'Login' },
     { link: '/register', component: 'Register' },
   ])
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
+
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+  
   const navigate = useNavigate();
   const handleCloseNavMenu = (link) => {
     setAnchorElNav(null);
@@ -132,4 +126,3 @@ function Navbar() {
     </AppBar>
   );
 }
-export default Navbar;

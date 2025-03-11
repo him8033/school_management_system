@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Skeleton, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { subjectSchema } from '../../../yupSchema/subjectSchema.js'
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
@@ -13,20 +13,27 @@ export default function Subjects() {
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
   const [loading, setLoading] = React.useState(true);
-  
+  const [subjects, setSubjects] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [editId, setEditId] = useState(null);
+
   const handleMessageClose = () => {
     setMessage('');
   }
 
-  const [subjects, setSubjects] = useState([]);
-  const [edit, setEdit] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const formRef = useRef(null);
+  const InputRef = useRef(null);
 
   const handleEdit = (x) => {
     setEdit(true);
     setEditId(x._id);
     formik.setFieldValue("subject_name", x.subject_name);
     formik.setFieldValue("subject_codename", x.subject_codename);
+
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      InputRef.current?.focus();
+    }, 500);
   }
 
   const cancelEdit = () => {
@@ -37,15 +44,20 @@ export default function Subjects() {
   }
 
   const handleDelete = (x) => {
-    axios.delete(`${baseApi}/subject/delete/${x._id}`)
-      .then(res => {
-        setMessage(res.data.message);
-        setMessageType("success");
-      }).catch(err => {
-        console.log("Error in delete Subjects", err)
-        setMessage("Error in Delete");
-        setMessageType("error");
-      })
+    if (confirm("Are you sure! You want to Delete.")) {
+      axios.delete(`${baseApi}/subject/delete/${x._id}`)
+        .then(res => {
+          setMessage(res.data.message);
+          setMessageType("success");
+        }).catch((error) => {
+          console.error(
+            `%c[ERROR in Deleting Subject]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
+          setMessage("Error in Delete");
+          setMessageType("error");
+        })
+    }
   }
 
   const formik = useFormik({
@@ -60,8 +72,11 @@ export default function Subjects() {
             setMessage(res.data.message);
             setMessageType("success");
             cancelEdit();
-          }).catch(err => {
-            console.log("Error in Subject Updating:- ", err);
+          }).catch((error) => {
+            console.error(
+              `%c[ERROR in Updating Subject]:- ${error.name || "Unknown Error"} `,
+              "color: red; font-weight: bold; font-size: 14px;", error
+            );
             setMessage("Error in update.");
             setMessageType("error");
           })
@@ -71,8 +86,11 @@ export default function Subjects() {
             // console.log("Subject add response:- ", res);
             setMessage(res.data.message);
             setMessageType("success");
-          }).catch(err => {
-            console.log("Error in Subject:- ", err);
+          }).catch((error) => {
+            console.error(
+              `%c[ERROR in Adding Subject]:- ${error.name || "Unknown Error"} `,
+              "color: red; font-weight: bold; font-size: 14px;", error
+            );
             setMessage("Error in saving Subject.");
             setMessageType("error");
           })
@@ -87,8 +105,11 @@ export default function Subjects() {
         setSubjects(res.data.data);
         setLoading(false);
         // console.log(res)
-      }).catch(err => {
-        console.log("Error in fetching all Subjects", err)
+      }).catch((error) => {
+        console.error(
+          `%c[ERROR in Fetching Subject]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
   }
@@ -98,45 +119,48 @@ export default function Subjects() {
 
   return (
     <>
-      <Typography variant='h3' sx={{ textAlign: 'center', fontWeight: '700' }}>Subject</Typography>
+      <Typography variant='h4' sx={{ fontWeight: '700' }}>Subject</Typography>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
-      <Box
-        component="form"
-        sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '100%', minWidth: '230px', margin: 'auto', background: '#fff' }}
-        noValidate
-        autoComplete="off"
-        onSubmit={formik.handleSubmit}
-      >
+      <Paper sx={{ marginBottom: 3 }} ref={ formRef }>
+        <Box
+          component="form"
+          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
+          noValidate
+          autoComplete="off"
+          onSubmit={formik.handleSubmit}
+        >
 
-        {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Edit Subject</Typography>
-          : <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Add New Subject</Typography>
-        }
-        <TextField
-          name="subject_name"
-          label="Subject Name"
-          value={formik.values.subject_name}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.subject_name && formik.errors.subject_name && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.subject_name}
-        </p>}
+          {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Edit Subject</Typography>
+            : <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Add New Subject</Typography>
+          }
+          <TextField
+            name="subject_name"
+            label="Subject Name"
+            value={formik.values.subject_name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            inputRef={InputRef}
+          />
+          {formik.touched.subject_name && formik.errors.subject_name && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.subject_name}
+          </p>}
 
-        <TextField
-          name="subject_codename"
-          label="Subject Codename"
-          value={formik.values.subject_codename}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.subject_codename && formik.errors.subject_codename && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.subject_codename}
-        </p>}
+          <TextField
+            name="subject_codename"
+            label="Subject Codename"
+            value={formik.values.subject_codename}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.subject_codename && formik.errors.subject_codename && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.subject_codename}
+          </p>}
 
-        <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
-        {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel Edit</Button>}
+          <Button type='submit' variant='contained'>Submit</Button>
+          {edit && <Button onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
 
-      </Box>
+        </Box>
+      </Paper>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
         {loading ? (
@@ -147,19 +171,19 @@ export default function Subjects() {
             </Paper>
           ))
         ) : subjects && subjects.length > 0 ?
-        (subjects.map(x => {
-          return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
-            <Box component={'div'}>
-              <Typography variant='h4'> Subject: {x.subject_name} [{x.subject_codename}]</Typography>
-            </Box>
-            <Box component={'div'}>
-              <Button onClick={() => { handleEdit(x) }}><EditIcon /></Button>
-              <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
-            </Box>
-          </Paper>)
-        })) : (
-          <Typography variant='h4' sx={{ m: 'auto' }}>No subjects available.</Typography>
-        )}
+          (subjects.map(x => {
+            return (<Paper key={x._id} sx={{ m: 2, p: 2 }}>
+              <Box component={'div'}>
+                <Typography variant='h4'> Subject: {x.subject_name} [{x.subject_codename}]</Typography>
+              </Box>
+              <Box component={'div'}>
+                <Button onClick={() => { handleEdit(x) }}><EditIcon /></Button>
+                <Button onClick={() => { handleDelete(x) }} sx={{ color: 'red' }}><DeleteIcon /></Button>
+              </Box>
+            </Paper>)
+          })) : (
+            <Typography variant='h4' sx={{ m: 'auto' }}>No subjects available.</Typography>
+          )}
       </Box>
     </>
   )

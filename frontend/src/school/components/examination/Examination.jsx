@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Typography } from '@mui/material';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -15,6 +15,11 @@ export default function Examination() {
   const [examinations, setExaminations] = React.useState([]);
   const [selectedClass, setSelectedClass] = React.useState("");
   const [loading, setLoading] = React.useState(true);
+  const [editId, setEditId] = React.useState(null);
+  const [subjects, setSubjects] = React.useState([]);
+  const [classes, setClasses] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
   const handleMessageClose = () => {
@@ -26,13 +31,29 @@ export default function Examination() {
     return date.getDate() + "-" + (+ date.getMonth() + 1) + "-" + date.getFullYear();
   }
 
-  const [editId, setEditId] = React.useState(null);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  const formRef = React.useRef(null);
+  const InputRef = React.useRef(null);
+
   const handleEdit = (id) => {
     setEditId(id);
     const selectedExamination = examinations.filter(x => x._id === id);
     formik.setFieldValue("date", selectedExamination[0].examDate);
     formik.setFieldValue("subject", selectedExamination[0].subject._id);
     formik.setFieldValue("examType", selectedExamination[0].examType);
+
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      InputRef.current?.focus();
+    }, 500);
   }
 
   const handleEditCancel = () => {
@@ -48,9 +69,12 @@ export default function Examination() {
         setMessage(response.data.message);
         setMessageType("success");
       } catch (error) {
+        console.error(
+          `%c[ERROR in Deleting Examination]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setMessage("Error in Deleting Examination.");
         setMessageType("error");
-        console.log("Error in Deleting Examination from examination component", error)
       }
     }
   }
@@ -78,9 +102,12 @@ export default function Examination() {
           formik.resetForm();
           // console.log("Response Update Examination: ", response);
         } catch (error) {
+          console.error(
+            `%c[ERROR in Updating Examination]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
           setMessage("Error in Updating Examination");
           setMessageType("error");
-          console.log("Error in Updating Examination from examination component", error)
         }
       } else {
         try {
@@ -95,38 +122,46 @@ export default function Examination() {
           formik.resetForm();
           // console.log("Response New Examination: ", response);
         } catch (error) {
+          console.error(
+            `%c[ERROR in Adding New Examination]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
           setMessage("Error in saving New Examination");
           setMessageType("error");
-          console.log("Error in Creating Examination from examination component", error)
         }
       }
     }
   })
 
-  const [subjects, setSubjects] = React.useState([]);
   const fetchSubjects = async () => {
     try {
       const response = await axios.get(`${baseApi}/subject/all`);
       setSubjects(response.data.data);
     } catch (error) {
-      console.log("Error in fetching Subject from examination component", error);
+      console.error(
+        `%c[ERROR in Fetching Subjects]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
     }
   }
 
-  const [classes, setClasses] = React.useState([]);
   const fetchClasses = async () => {
     try {
       const response = await axios.get(`${baseApi}/class/all`);
       setClasses(response.data.data);
-      if(response.data.data.length > 0){
+      if (response.data.data.length > 0) {
         setSelectedClass(response.data.data[0]._id);
-      }else{
+      } else {
         setSelectedClass("");
         setExaminations([]);
         setLoading(false);
       }
     } catch (error) {
-      console.log("Error in fetching Classes from examination component", error);
+      console.error(
+        `%c[ERROR in Fetching Class]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
+      setLoading(false);
     }
   }
 
@@ -138,7 +173,10 @@ export default function Examination() {
         setLoading(false);
       }
     } catch (error) {
-      console.log("Error in fetching Examination from examination component", error);
+      console.error(
+        `%c[ERROR in Fetching Examination]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
       setLoading(false);
     }
   }
@@ -154,10 +192,11 @@ export default function Examination() {
 
   return (
     <>
+      <Typography variant='h4' sx={{ fontWeight: '700' }}>Examination</Typography>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
       <Paper sx={{ mb: '20px' }}>
         <Box>
-          <FormControl sx={{ mt: '10px', minWidth: '210px' }} >
+          <FormControl sx={{ margin: 2, minWidth: '210px' }} >
             <InputLabel id="demo-simple-select-label">Class</InputLabel>
             <Select
               label="Class"
@@ -176,10 +215,11 @@ export default function Examination() {
       <Paper sx={{ mb: '20px' }}>
         <Box
           component="form"
-          sx={{ width: '24vw', minWidth: '310px', margin: 'auto' }}
+          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
           noValidate
           autoComplete="off"
           onSubmit={formik.handleSubmit}
+          ref={formRef}
         >
           {editId ? <Typography variant='h4' gutterBottom>Edit Exam</Typography>
             : <Typography variant='h4' gutterBottom>Add New Exam</Typography>}
@@ -190,7 +230,13 @@ export default function Examination() {
                 value={formik.values.date ? dayjs(formik.values.date) : null}
                 onChange={(newValue) => {
                   formik.setFieldValue("date", newValue);
-                }} />
+                }}
+                slotProps={{
+                  textField: {
+                    inputRef: InputRef, // Attach ref here
+                  },
+                }}
+                />
             </DemoContainer>
           </LocalizationProvider>
           {formik.touched.date && formik.errors.date && <p style={{ color: 'red', textTransform: 'capitalize' }}>
@@ -234,52 +280,60 @@ export default function Examination() {
         </Box>
       </Paper>
 
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Exam Date</TableCell>
-              <TableCell align="right">Subject</TableCell>
-              <TableCell align="right">Exam Type</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              Array.from(new Array(5)).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell><Skeleton variant="text" width={100} /></TableCell>
-                  <TableCell align="right"><Skeleton variant="text" width={120} /></TableCell>
-                  <TableCell align="right"><Skeleton variant="text" width={100} /></TableCell>
-                  <TableCell align="right"><Skeleton variant="rectangular" width={150} height={30} /></TableCell>
-                </TableRow>
-              ))
-            ) : examinations && examinations.length > 0 ? (
-              examinations.map((examination) => (
-                <TableRow
-                  key={examination._id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {dateFormat(examination.examDate)}
-                  </TableCell>
-                  <TableCell align="right">{examination.subject.subject_name}</TableCell>
-                  <TableCell align="right">{examination.examType}</TableCell>
-                  <TableCell align="right">
-                    <Button variant='contained' sx={{ background: 'green', mr: '5px' }} onClick={() => { handleEdit(examination._id) }}>Edit</Button>
-                    <Button variant='contained' sx={{ background: 'red' }} onClick={() => { handleDelete(examination._id) }}>Delete</Button>
-                  </TableCell>
-                </TableRow>
-              ))) : (
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <TableContainer sx={{ maxHeight: 440 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={4} align="center">
-                  <Typography variant="h6">No examinations available for this Class</Typography>
-                </TableCell>
+                <TableCell>Exam Date</TableCell>
+                <TableCell align="right">Subject</TableCell>
+                <TableCell align="right">Exam Type</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                Array.from(new Array(5)).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell><Skeleton variant="text" width={100} /></TableCell>
+                    <TableCell align="right"><Skeleton variant="text" width={120} /></TableCell>
+                    <TableCell align="right"><Skeleton variant="text" width={100} /></TableCell>
+                    <TableCell align="right"><Skeleton variant="rectangular" width={150} height={30} /></TableCell>
+                  </TableRow>
+                ))
+              ) : examinations && examinations.length > 0 ? (
+                examinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((examination) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={examination._id}>
+                    <TableCell component="th" scope="row">
+                      {dateFormat(examination.examDate)}
+                    </TableCell>
+                    <TableCell align="right">{examination.subject.subject_name}</TableCell>
+                    <TableCell align="right">{examination.examType}</TableCell>
+                    <TableCell align="right">
+                      <Button variant='contained' sx={{ background: 'green', mr: '5px' }} onClick={() => { handleEdit(examination._id) }}>Edit</Button>
+                      <Button variant='contained' sx={{ background: 'red' }} onClick={() => { handleDelete(examination._id) }}>Delete</Button>
+                    </TableCell>
+                  </TableRow>
+                ))) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    <Typography variant="h6">No examinations available for this Class</Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={examinations.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
     </>
   );
 }

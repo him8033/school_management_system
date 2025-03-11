@@ -13,8 +13,11 @@ export default function NoticeStudent() {
         setNotices(res.data.data);
         setLoading(false);
         // console.log(res)
-      }).catch(err => {
-        console.log("Error in fetching all Notices", err)
+      }).catch(error => {
+        console.error(
+          `%c[ERROR in Fetching Notices]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
   }

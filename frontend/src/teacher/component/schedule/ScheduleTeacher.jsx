@@ -11,22 +11,27 @@ const localizer = momentLocalizer(moment);
 export default function ScheduleTeacher() {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const date = new Date();
   const myEventsList = []
-
   const [events, setEvents] = useState(myEventsList);
 
-  useEffect(() => {
+  const fetchClasses = () => {
     axios.get(`${baseApi}/class/all`)
       .then(res => {
         setClasses(res.data.data);
         setSelectedClass(res.data.data[0]._id)
-      }).catch(err => {
-        console.log("Fetch Class Error:", err);
+      }).catch(error => {
+        console.error(
+          `%c[ERROR in Fetching Classes]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
       })
-  }, [])
+  }
 
   useEffect(() => {
+    fetchClasses();
+  }, [])
+
+  const fetchSchedule = () => {
     if (selectedClass) {
       axios.get(`${baseApi}/schedule/fetch-with-class/${selectedClass}`)
         .then(res => {
@@ -39,10 +44,17 @@ export default function ScheduleTeacher() {
             })
           })
           setEvents(resData);
-        }).catch(err => {
-          console.log("Fetch Schedule Error:", err);
+        }).catch(error => {
+          console.error(
+            `%c[ERROR in Fetching Schedules]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
         })
     }
+  }
+
+  useEffect(() => {
+    fetchSchedule();
   }, [selectedClass])
 
   return (

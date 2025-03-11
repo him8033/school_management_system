@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
-import { Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -24,6 +24,8 @@ export default function AttendanceDetails() {
     const [loading, setLoading] = React.useState(true);
     const [present, setPresent] = useState(0);
     const [absent, setAbsent] = useState(0);
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const studentId = useParams().id;
     const navigate = useNavigate();
 
@@ -31,6 +33,14 @@ export default function AttendanceDetails() {
         return new Date(dateData).toLocaleDateString('en-GB'); // Outputs in DD/MM/YYYY format
     };
 
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(+event.target.value);
+        setPage(0);
+    };
 
     const fetchAttendanceData = async () => {
         try {
@@ -48,7 +58,10 @@ export default function AttendanceDetails() {
             setAbsent(absentCount);
             setLoading(false);
         } catch (error) {
-            console.log("Error in fetching student Attendance.", error);
+            console.error(
+                `%c[ERROR in Fetching Attendance Data]:- ${error.name || "Unknown Error"} `,
+                "color: red; font-weight: bold; font-size: 14px;", error
+            );
             navigate('/school/attendance');
         }
     }
@@ -76,10 +89,10 @@ export default function AttendanceDetails() {
                         />
                     </Item>
                 </Grid>
-                <Grid xs={12} sm={6}>
+                <Grid size={8}>
                     <Item>
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableContainer sx={{ maxHeight: 440 }}>
+                            <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Date</TableCell>
@@ -93,11 +106,8 @@ export default function AttendanceDetails() {
                                             <TableCell align="right"><Skeleton variant="text" width={120} /></TableCell>
                                         </TableRow>
                                     ) : attendanceData.length > 0 ?
-                                        (attendanceData.map((attendance) => (
-                                            <TableRow
-                                                key={attendance._id}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
+                                        (attendanceData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((attendance) => (
+                                            <TableRow hover role="checkbox" tabIndex={-1} key={attendance._id}>
                                                 <TableCell component="th" scope="row">{convertDate(attendance.date)}</TableCell>
                                                 <TableCell align="right">{attendance.status}</TableCell>
                                             </TableRow>
@@ -111,6 +121,15 @@ export default function AttendanceDetails() {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25, 50]}
+                            component="div"
+                            count={attendanceData.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
                     </Item>
                 </Grid>
             </Grid>

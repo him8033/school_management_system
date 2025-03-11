@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
-import { Typography, Box, Button, TextField, CardMedia, Skeleton } from '@mui/material'
+import { Typography, Box, Button, TextField, CardMedia, Skeleton, Paper } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
@@ -10,10 +10,10 @@ export default function Dashboard() {
   const [schoolName, setSchoolName] = useState(null);
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = React.useState(true);
-
-  // Image Handling
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const addImage = (event) => {
     const file = event.target.files[0];
@@ -21,6 +21,7 @@ export default function Dashboard() {
     setFile(file);
   }
 
+  const formRef = useRef(null);
   const fileInputRef = useRef(null);
   const handleClearFile = () => {
     if (fileInputRef.current) {
@@ -30,8 +31,6 @@ export default function Dashboard() {
     setImageUrl(null);
   }
 
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState('');
   const handleMessageClose = () => {
     setMessage('');
   }
@@ -48,11 +47,23 @@ export default function Dashboard() {
         setMessage(res.data.message);
         setMessageType('success');
         cancelEdit();
-      }).catch(err => {
-        console.log("Error: ", err);
-        setMessage(err.response.data.message);
+      }).catch(error => {
+        console.error(
+          `%c[ERROR in Updating School]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
+        setMessage(error.response.data.message);
         setMessageType('error');
       })
+  }
+
+  const handleEdit = () => {
+    setEdit(true);
+
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      fileInputRef.current?.focus();
+    }, 500);
   }
 
   const cancelEdit = () => {
@@ -68,8 +79,11 @@ export default function Dashboard() {
         setSchool(res.data.school);
         setSchoolName(res.data.school.school_name);
         setLoading(false);
-      }).catch(err => {
-        console.log("Error: ", err);
+      }).catch(error => {
+        console.error(
+          `%c[ERROR in Fetching School]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
   }
@@ -80,38 +94,41 @@ export default function Dashboard() {
 
   return (
     <>
-      <h1>Dashboard</h1>
+      <Typography variant='h4' sx={{ fontWeight: '700' }}>Dashboard</Typography>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
 
       {edit &&
-        <Box
-          component="form"
-          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', background: '#fff' }}
-          noValidate
-          autoComplete="off"
-        >
+        <Paper sx={{ margin: 2 }}>
+          <Box
+            component="form"
+            sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
+            noValidate
+            autoComplete="off"
+            ref={ formRef }
+          >
 
-          <Typography>Add School Image</Typography>
-          <TextField
-            type='file'
-            inputRef={fileInputRef}
-            onChange={(event) => { addImage(event) }}
-          />
-          {imageUrl && <Box>
-            <CardMedia component={'img'} height={'240px'} image={imageUrl} />
-          </Box>}
+            <Typography>Add School Image</Typography>
+            <TextField
+              type='file'
+              inputRef={fileInputRef}
+              onChange={(event) => { addImage(event) }}
+            />
+            {imageUrl && <Box>
+              <CardMedia component={'img'} height={'240px'} image={imageUrl} />
+            </Box>}
 
-          <TextField
-            label="School Name"
-            value={schoolName}
-            onChange={(e) => {
-              setSchoolName(e.target.value)
-            }}
-          />
+            <TextField
+              label="School Name"
+              value={schoolName}
+              onChange={(e) => {
+                setSchoolName(e.target.value)
+              }}
+            />
 
-          <Button variant='contained' onClick={handleEditSubmit}>Submit Edit</Button>
-          <Button variant='outlined' onClick={cancelEdit}>Cancel Edit</Button>
-        </Box>
+            <Button variant='contained' onClick={handleEditSubmit}>Submit Edit</Button>
+            <Button variant='outlined' onClick={cancelEdit}>Cancel Edit</Button>
+          </Box>
+        </Paper>
       }
 
       {loading ? (
@@ -150,7 +167,7 @@ export default function Dashboard() {
         </Box>
 
         <Box component={'div'} sx={{ position: 'absolute', bottom: '20px', right: '30px', height: '50px', width: '50px' }}>
-          <Button sx={{ borderRadius: '50%', background: '#fff', color: 'black', height: '60px' }} onClick={() => { setEdit(true) }}>
+          <Button sx={{ borderRadius: '50%', background: '#fff', color: 'black', height: '60px' }} onClick={() => { handleEdit() }}>
             <EditIcon />
           </Button>
         </Box>

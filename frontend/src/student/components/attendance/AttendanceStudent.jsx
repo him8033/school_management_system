@@ -4,7 +4,7 @@ import { baseApi } from '../../../environment.js';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
-import { Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -24,11 +24,22 @@ export default function AttendanceStudent() {
   const [absent, setAbsent] = useState(0);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = React.useState(true);
-
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  
   const convertDate = (dateData) => {
     const date = new Date(dateData);
     return date.getDate() + "-" + (+ date.getMonth() + 1) + "-" + date.getFullYear();
   }
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   const fetchStudentDetails = async () => {
     try {
@@ -36,7 +47,10 @@ export default function AttendanceStudent() {
       // console.log(response)
       setStudentId(response.data.student._id);
     } catch (error) {
-      console.log("Error in fetching Single Student Details.", error);
+      console.error(
+        `%c[ERROR in fetching Student Details]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
     }
   }
 
@@ -60,7 +74,10 @@ export default function AttendanceStudent() {
       setAbsent(absentCount);
       setLoading(false);
     } catch (error) {
-      console.log("Error in fetching student Attendance.", error);
+      console.error(
+        `%c[ERROR in Fetching Attendance Data]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
       setLoading(false);
     }
   }
@@ -90,10 +107,10 @@ export default function AttendanceStudent() {
             />
           </Item>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid size={8}>
           <Item>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableContainer sx={{ maxHeight: 440 }}>
+              <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow>
                     <TableCell>Date</TableCell>
@@ -107,24 +124,30 @@ export default function AttendanceStudent() {
                       <TableCell align="right"><Skeleton variant="text" width={120} /></TableCell>
                     </TableRow>
                   ) : attendanceData.length > 0 ?
-                  (attendanceData.map((attendance) => (
-                    <TableRow
-                      key={attendance._id}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">{convertDate(attendance.date)}</TableCell>
-                      <TableCell align="right">{attendance.status}</TableCell>
-                    </TableRow>
-                  ))) : (
-                    <TableRow>
-                      <TableCell colSpan={2} align="center">
-                        <Typography variant="h6">There is no Examination Available</Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
+                    (attendanceData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((attendance) => (
+                      <TableRow hover role="checkbox" tabIndex={-1} key={attendance._id}>
+                        <TableCell component="th" scope="row">{convertDate(attendance.date)}</TableCell>
+                        <TableCell align="right">{attendance.status}</TableCell>
+                      </TableRow>
+                    ))) : (
+                      <TableRow>
+                        <TableCell colSpan={2} align="center">
+                          <Typography variant="h6">There is no Examination Available</Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
                 </TableBody>
               </Table>
             </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              component="div"
+              count={attendanceData.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </Item>
         </Grid>
       </Grid>

@@ -9,17 +9,19 @@ const localizer = momentLocalizer(moment);
 
 export default function ScheduleStudent() {
   const [selectedClass, setSelectedClass] = useState("");
-  const date = new Date();
   const myEventsList = []
-
   const [events, setEvents] = useState(myEventsList);
-  const fetchStudentDetails = async() => {
+
+  const fetchStudentDetails = async () => {
     try {
       const response = await axios.get(`${baseApi}/student/fetch-single`);
       // console.log(response)
       setSelectedClass(response.data.student.student_class);
     } catch (error) {
-      console.log("Error in fetching Single Student Details.", error);
+      console.error(
+        `%c[ERROR in Fetch Student]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
     }
   }
 
@@ -27,7 +29,7 @@ export default function ScheduleStudent() {
     fetchStudentDetails();
   }, [])
 
-  useEffect(() => {
+  const fetchSchedule = () => {
     if (selectedClass) {
       axios.get(`${baseApi}/schedule/fetch-with-class/${selectedClass._id}`)
         .then(res => {
@@ -40,10 +42,17 @@ export default function ScheduleStudent() {
             })
           })
           setEvents(resData);
-        }).catch(err => {
-          console.log("Fetch Schedule Error:", err);
+        }).catch(error => {
+          console.error(
+            `%c[ERROR in Fetch Schedule]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
         })
     }
+  }
+
+  useEffect(() => {
+    fetchSchedule();
   }, [selectedClass])
 
   return (

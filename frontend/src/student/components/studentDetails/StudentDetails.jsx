@@ -20,7 +20,10 @@ export default function StudentDetails() {
       setStudentDetails(response.data.student);
       setLoading(false);
     } catch (error) {
-      console.log("Error in fetching Single Student Details.", error);
+      console.error(
+        `%c[ERROR in Fetching Student Details]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
       setLoading(false);
     }
   }

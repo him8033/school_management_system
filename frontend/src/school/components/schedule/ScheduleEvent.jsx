@@ -12,6 +12,8 @@ import dayjs from 'dayjs';
 
 
 export default function ScheduleEvent({ selectedClass, handleEventClose, handleMessageNew, edit, selectedEventId }) {
+    const [teachers, setTeachers] = useState([]);
+    const [subjects, setSubjects] = useState([]);
 
     const periods = [
         { id: 1, label: 'Period 1(10:00 AM to 11:00 AM)', startTime: '10:00', endTime: '11:00' },
@@ -29,19 +31,21 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                 .then((res) => {
                     handleMessageNew(res.data.message, "success");
                     handleCancel();
-                }).catch((err) => {
-                    console.log("Schedule Deleting Error", err);
+                }).catch((error) => {
+                    console.error(
+                        `%c[ERROR in Deleting Schedule]:- ${error.name || "Unknown Error"} `,
+                        "color: red; font-weight: bold; font-size: 14px;", error
+                    );
                     handleMessageNew("Error in Deleting Schedule", "error");
                 })
         }
     }
+
     const handleCancel = () => {
         formik.resetForm();
         handleEventClose();
     }
 
-    const [teachers, setTeachers] = useState([]);
-    const [subjects, setSubjects] = useState([]);
     const initialValues = {
         teacher: "",
         subject: "",
@@ -68,8 +72,11 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                     handleMessageNew(res.data.message, "success");
                     formik.resetForm();
                     handleEventClose();
-                }).catch((err) => {
-                    console.log("Schedule Updating Error", err);
+                }).catch((error) => {
+                    console.error(
+                        `%c[ERROR in Updating Schedule]:- ${error.name || "Unknown Error"} `,
+                        "color: red; font-weight: bold; font-size: 14px;", error
+                    );
                     handleMessageNew("Error in Updating Schedule", "error");
                 })
             } else {
@@ -83,8 +90,11 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                     handleMessageNew(res.data.message, "success");
                     formik.resetForm();
                     handleEventClose();
-                }).catch((err) => {
-                    console.log("Schedule Creation Error", err);
+                }).catch((error) => {
+                    console.error(
+                        `%c[ERROR in Creaing Schedule]:- ${error.name || "Unknown Error"} `,
+                        "color: red; font-weight: bold; font-size: 14px;", error
+                    );
                     handleMessageNew("Error in Creating Schedule", "error");
                 })
             }
@@ -108,7 +118,7 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
         return `${dateHours < 10 ? '0' : ''}${dateHours}:${dateMinutes < 10 ? '0' : ''}${dateMinutes}`
     }
 
-    useEffect(() => {
+    const fetchSchedule = () => {
         if (selectedEventId) {
             axios.get(`${baseApi}/schedule/fetch/${selectedEventId}`)
                 .then((res) => {
@@ -119,17 +129,24 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                     formik.setFieldValue("date", start);
                     const finalFormattedTime = dateFormat(start) + ',' + dateFormat(end);
                     formik.setFieldValue("period", `${finalFormattedTime}`);
-                }).catch((err) => {
-                    console.log("Error", err);
+                }).catch((error) => {
+                    console.error(
+                        `%c[ERROR in Fetching Schedule]:- ${error.name || "Unknown Error"} `,
+                        "color: red; font-weight: bold; font-size: 14px;", error
+                    );
                 })
         }
+    }
+
+    useEffect(() => {
+        fetchSchedule();
     }, [selectedEventId])
 
     return (
         <>
             <Box
                 component="form"
-                sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', background: '#fff' }}
+                sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
                 noValidate
                 autoComplete="off"
                 onSubmit={formik.handleSubmit}
@@ -147,7 +164,7 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                     >
-                        <MenuItem value= "">Select Teacher</MenuItem>
+                        <MenuItem value="">Select Teacher</MenuItem>
                         {teachers && teachers.map(x => {
                             return (<MenuItem key={x._id} value={x._id}>{x.name}</MenuItem>)
                         })}
@@ -168,7 +185,7 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                     >
-                        <MenuItem value= "">Select Subject</MenuItem>
+                        <MenuItem value="">Select Subject</MenuItem>
                         {subjects && subjects.map(x => {
                             return (<MenuItem key={x._id} value={x._id}>{x.subject_name}</MenuItem>)
                         })}
@@ -189,7 +206,7 @@ export default function ScheduleEvent({ selectedClass, handleEventClose, handleM
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                     >
-                        <MenuItem value= "">Select Period</MenuItem>
+                        <MenuItem value="">Select Period</MenuItem>
                         {periods && periods.map(x => {
                             return (<MenuItem key={x.id} value={`${x.startTime},${x.endTime}`}>{x.label}</MenuItem>)
                         })}

@@ -13,15 +13,22 @@ export default function Carousel() {
   const [schools, setSchools] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
+  const fetchSchools = () => {
     axios.get(`${baseApi}/school/all`)
       .then(res => {
         setSchools(res.data.schools);
         setLoading(false);
-      }).catch(err => {
-        console.log("Error: ", err);
+      }).catch(error => {
+        console.error(
+          `%c[ERROR in Fetching School]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
+  }
+
+  React.useEffect(() => {
+    fetchSchools();
   }, [])
 
   return (
@@ -62,7 +69,6 @@ export default function Carousel() {
                   }}
                   >
                     <Typography variant="h5">{school.school_name}</Typography>
-                    {/* <Typography variant="body1">{item.description}</Typography> */}
                   </Box>
                 </Box>
               </SwiperSlide>

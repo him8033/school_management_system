@@ -1,13 +1,7 @@
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
-import { CardMedia, Skeleton } from '@mui/material';
+import { CardMedia, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 
 export default function TeacherDetails() {
   const [teacherDetails, setTeacherDetails] = React.useState(null);
@@ -19,7 +13,10 @@ export default function TeacherDetails() {
       setTeacherDetails(response.data.teacher);
       setLoading(false);
     } catch (error) {
-      console.log("Error in fetching Single Teacher Details.", error);
+      console.error(
+        `%c[ERROR in Fetching Teacher Details]:- ${error.name || "Unknown Error"} `,
+        "color: red; font-weight: bold; font-size: 14px;", error
+      );
       setLoading(false);
     }
   }

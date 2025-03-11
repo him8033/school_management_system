@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Box, TextField, Skeleton } from '@mui/material';
+import { CardMedia, Button, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardActionArea, CardContent, Box, TextField, Skeleton, Paper, InputAdornment } from '@mui/material';
 import { useFormik } from 'formik';
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import { teacherEditSchema, teacherSchema } from '../../../yupSchema/teacherSche
 import { baseApi } from '../../../environment.js'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function Teachers() {
   const [file, setFile] = React.useState(null);
@@ -15,6 +16,10 @@ export default function Teachers() {
   const [edit, setEdit] = React.useState(false);
   const [editId, setEditId] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [teachers, setTeachers] = React.useState([]);
+  const [params, setParams] = React.useState({});
+  const [message, setMessage] = React.useState('');
+  const [messageType, setMessageType] = React.useState('');
 
   const addImage = (event) => {
     const file = event.target.files[0];
@@ -22,6 +27,7 @@ export default function Teachers() {
     setFile(file);
   }
 
+  const formRef = React.useRef(null);
   const fileInputRef = React.useRef(null);
   const handleClearFile = () => {
     if (fileInputRef.current) {
@@ -38,8 +44,11 @@ export default function Teachers() {
           // console.log(res);
           setMessage(res.data.message);
           setMessageType('success');
-        }).catch(err => {
-          console.log("Error: ", err);
+        }).catch((error) => {
+          console.error(
+            `%c[ERROR in Deleting Teacher]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
           setMessage("Error in Deleting Teacher.");
           setMessageType('error');
         })
@@ -62,6 +71,11 @@ export default function Teachers() {
     formik.setFieldValue('qualification', filteredTeacher[0].qualification);
     formik.setFieldValue('age', filteredTeacher[0].age);
     formik.setFieldValue('gender', filteredTeacher[0].gender);
+
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      fileInputRef.current?.focus();
+    }, 500);
   }
 
   const initialValues = {
@@ -99,8 +113,11 @@ export default function Teachers() {
             formik.resetForm();
             handleClearFile();
             cancelEdit();
-          }).catch(err => {
-            console.log("Error: ", err);
+          }).catch((error) => {
+            console.error(
+              `%c[ERROR in Updating Teacher]:- ${error.name || "Unknown Error"} `,
+              "color: red; font-weight: bold; font-size: 14px;", error
+            );
             setMessage("Error in Updating Teacher.");
             setMessageType('error');
           })
@@ -122,8 +139,11 @@ export default function Teachers() {
               setMessageType('success');
               formik.resetForm();
               handleClearFile();
-            }).catch(err => {
-              console.log("Error: ", err);
+            }).catch((error) => {
+              console.error(
+                `%c[ERROR in Adding Teacher]:- ${error.name || "Unknown Error"} `,
+                "color: red; font-weight: bold; font-size: 14px;", error
+              );
               setMessage("Error in Creating New Teacher.");
               setMessageType('error');
             })
@@ -135,8 +155,6 @@ export default function Teachers() {
     }
   })
 
-  const [message, setMessage] = React.useState('');
-  const [messageType, setMessageType] = React.useState('');
   const handleMessageClose = () => {
     setMessage('');
   }
@@ -145,12 +163,13 @@ export default function Teachers() {
     axios.get(`${baseApi}/class/all`)
       .then(res => {
         setClasses(res.data.data);
-      }).catch(err => {
-        console.log("Error in fetchig Classes");
+      }).catch((error) => {
+        console.error(
+          `%c[ERROR in Fetching Classes]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
       })
   }
-
-  const [params, setParams] = React.useState({});
 
   const handleSearch = (e) => {
     setParams((prevParams) => ({
@@ -159,14 +178,16 @@ export default function Teachers() {
     }))
   }
 
-  const [teachers, setTeachers] = React.useState([]);
   const fetchTeachers = () => {
     axios.get(`${baseApi}/teacher/fetch-with-query`, { params })
       .then(res => {
         setTeachers(res.data.teachers);
         setLoading(false);
-      }).catch(err => {
-        console.log("Error in fetchig Teachers");
+      }).catch((error) => {
+        console.error(
+          `%c[ERROR in Fetching Teachers]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
   }
@@ -179,129 +200,139 @@ export default function Teachers() {
   return (
     <Box component={'div'} sx={{
       height: "100%",
-      paddingTop: "50px",
+      // paddingTop: "50px",
       paddingBottom: "50px"
     }}>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
-      <Typography variant='h2' sx={{ textAlign: "center", paddingBottom: "25px" }}>Teachers</Typography>
-      <Box
-        component="form"
-        sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', background: '#fff' }}
-        noValidate
-        autoComplete="off"
-        onSubmit={formik.handleSubmit}
-      >
-        {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Edit Teacher</Typography> :
-          <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Add New Teacher</Typography>}
-        <Typography>Add Teacher Image</Typography>
-        <TextField
-          type='file'
-          inputRef={fileInputRef}
-          onChange={(event) => { addImage(event) }}
-        />
-        {imageUrl && <Box>
-          <CardMedia component={'img'} height={'240px'} image={imageUrl} />
-        </Box>}
+      <Typography variant='h4' sx={{ fontWeight: '700' }}>Teachers</Typography>
+      <Paper>
+        <Box
+          component="form"
+          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
+          noValidate
+          autoComplete="off"
+          onSubmit={formik.handleSubmit}
+          ref={formRef}
+        >
+          {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Edit Teacher</Typography> :
+            <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px" }}>Add New Teacher</Typography>}
+          <Typography>Add Teacher Image</Typography>
+          <TextField
+            type='file'
+            inputRef={fileInputRef}
+            onChange={(event) => { addImage(event) }}
+          />
+          {imageUrl && <Box>
+            <CardMedia component={'img'} height={'240px'} image={imageUrl} />
+          </Box>}
 
-        <TextField
-          name="name"
-          label="Teacher Name"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.name && formik.errors.name && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.name}
-        </p>}
-
-        <TextField
-          name="email"
-          label="E-mail"
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.email && formik.errors.email && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.email}
-        </p>}
-
-        <TextField
-          name="age"
-          label="Age"
-          value={formik.values.age}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.age && formik.errors.age && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.age}
-        </p>}
-
-        <FormControl>
-          <InputLabel id="demo-simple-select-label">Gender</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            name="gender"
-            label="Gender"
-            value={formik.values.gender}
+          <TextField
+            name="name"
+            label="Teacher Name"
+            value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-          >
-            <MenuItem value={'male'}>Male</MenuItem>
-            <MenuItem value={'female'}>Female</MenuItem>
-            <MenuItem value={'other'}>Other</MenuItem>
-          </Select>
-        </FormControl>
-        {formik.touched.gender && formik.errors.gender && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.gender}
-        </p>}
+          />
+          {formik.touched.name && formik.errors.name && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.name}
+          </p>}
 
-        <TextField
-          name="qualification"
-          label="Qualification"
-          value={formik.values.qualification}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.qualification && formik.errors.qualification && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.qualification}
-        </p>}
+          <TextField
+            name="email"
+            label="E-mail"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.email && formik.errors.email && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.email}
+          </p>}
 
-        <TextField
-          type='password'
-          name="password"
-          label="Password"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.password && formik.errors.password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.password}
-        </p>}
+          <TextField
+            name="age"
+            label="Age"
+            value={formik.values.age}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.age && formik.errors.age && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.age}
+          </p>}
 
-        <TextField
-          type='password'
-          name="confirm_password"
-          label="Confirm Password"
-          value={formik.values.confirm_password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.confirm_password && formik.errors.confirm_password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.confirm_password}
-        </p>}
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              name="gender"
+              label="Gender"
+              value={formik.values.gender}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            >
+              <MenuItem value={'male'}>Male</MenuItem>
+              <MenuItem value={'female'}>Female</MenuItem>
+              <MenuItem value={'other'}>Other</MenuItem>
+            </Select>
+          </FormControl>
+          {formik.touched.gender && formik.errors.gender && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.gender}
+          </p>}
 
-        <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
-        {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
+          <TextField
+            name="qualification"
+            label="Qualification"
+            value={formik.values.qualification}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.qualification && formik.errors.qualification && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.qualification}
+          </p>}
 
-      </Box>
+          <TextField
+            type='password'
+            name="password"
+            label="Password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.password && formik.errors.password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.password}
+          </p>}
+
+          <TextField
+            type='password'
+            name="confirm_password"
+            label="Confirm Password"
+            value={formik.values.confirm_password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.confirm_password && formik.errors.confirm_password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.confirm_password}
+          </p>}
+
+          <Button type='submit' variant='contained'>Submit</Button>
+          {edit && <Button onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
+
+        </Box>
+      </Paper>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mt: '40px' }}>
 
         <TextField
-          label="Search"
+          label="Search by Teacher Name"
           value={params.search ? params.search : ""}
           onChange={(e) => { handleSearch(e) }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
         />
 
       </Box>

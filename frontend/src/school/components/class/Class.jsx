@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Skeleton, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { classSchema } from '../../../yupSchema/classSchema.js'
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
@@ -13,19 +13,27 @@ export default function Class() {
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
   const [loading, setLoading] = React.useState(true);
+  const [classes, setClasses] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [editId, setEditId] = useState(null);
+
   const handleMessageClose = () => {
     setMessage('');
   }
 
-  const [classes, setClasses] = useState([]);
-  const [edit, setEdit] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const formRef = useRef(null);
+  const InputRef = useRef(null);
 
   const handleEdit = (x) => {
     setEdit(true);
     setEditId(x._id);
     formik.setFieldValue("class_text", x.class_text);
     formik.setFieldValue("class_num", x.class_num);
+
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      InputRef.current?.focus();
+    }, 500);
   }
 
   const cancelEdit = () => {
@@ -36,15 +44,20 @@ export default function Class() {
   }
 
   const handleDelete = (x) => {
-    axios.delete(`${baseApi}/class/delete/${x._id}`)
-      .then(res => {
-        setMessage(res.data.message);
-        setMessageType("success");
-      }).catch(err => {
-        console.log("Error in delete Classes", err)
-        setMessage("Error in Delete");
-        setMessageType("error");
-      })
+    if (confirm("Are you sure! You want to Delete.")) {
+      axios.delete(`${baseApi}/class/delete/${x._id}`)
+        .then(res => {
+          setMessage(res.data.message);
+          setMessageType("success");
+        }).catch(error => {
+          console.error(
+            `%c[ERROR in Deleting Class]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
+          setMessage("Error in Delete");
+          setMessageType("error");
+        })
+    }
   }
 
   const formik = useFormik({
@@ -59,8 +72,11 @@ export default function Class() {
             setMessage(res.data.message);
             setMessageType("success");
             cancelEdit();
-          }).catch(err => {
-            console.log("Error in Class Updating:- ", err);
+          }).catch(error => {
+            console.error(
+              `%c[ERROR in Updating Class]:- ${error.name || "Unknown Error"} `,
+              "color: red; font-weight: bold; font-size: 14px;", error
+            );
             setMessage("Error in update.");
             setMessageType("error");
           })
@@ -70,8 +86,11 @@ export default function Class() {
             // console.log("Class add response:- ", res);
             setMessage(res.data.message);
             setMessageType("success");
-          }).catch(err => {
-            console.log("Error in Class:- ", err);
+          }).catch(error => {
+            console.error(
+              `%c[ERROR in Add Class]:- ${error.name || "Unknown Error"} `,
+              "color: red; font-weight: bold; font-size: 14px;", error
+            );
             setMessage("Error in saving Class.");
             setMessageType("error");
           })
@@ -86,8 +105,11 @@ export default function Class() {
         setClasses(res.data.data);
         setLoading(false);
         // console.log(res)
-      }).catch(err => {
-        console.log("Error in fetching all Classes", err)
+      }).catch(error => {
+        console.error(
+          `%c[ERROR in Fetching Class]:- ${error.name || "Unknown Error"} `,
+          "color: red; font-weight: bold; font-size: 14px;", error
+        );
         setLoading(false);
       })
   }
@@ -97,45 +119,48 @@ export default function Class() {
 
   return (
     <>
-      <Typography variant='h3' sx={{ textAlign: 'center', fontWeight: '700' }}>Class</Typography>
+      <Typography variant='h4' sx={{ fontWeight: '700' }}>Class</Typography>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
-      <Box
-        component="form"
-        sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', background: '#fff' }}
-        noValidate
-        autoComplete="off"
-        onSubmit={formik.handleSubmit}
-      >
+      <Paper sx={{ marginBottom: 3 }} ref={formRef}>
+        <Box
+          component="form"
+          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', padding: 3 }}
+          noValidate
+          autoComplete="off"
+          onSubmit={formik.handleSubmit}
+        >
 
-        {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Edit Class</Typography>
-          : <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Add New Class</Typography>
-        }
-        <TextField
-          name="class_text"
-          label="Class Text"
-          value={formik.values.class_text}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.class_text && formik.errors.class_text && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.class_text}
-        </p>}
+          {edit ? <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Edit Class</Typography>
+            : <Typography variant='h4' sx={{ textAlign: "center", paddingBottom: "25px", fontWeight: 700 }}>Add New Class</Typography>
+          }
+          <TextField
+            name="class_text"
+            label="Class Text"
+            value={formik.values.class_text}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            inputRef={InputRef}
+          />
+          {formik.touched.class_text && formik.errors.class_text && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.class_text}
+          </p>}
 
-        <TextField
-          name="class_num"
-          label="Class Number"
-          value={formik.values.class_num}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.class_num && formik.errors.class_num && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.class_num}
-        </p>}
+          <TextField
+            name="class_num"
+            label="Class Number"
+            value={formik.values.class_num}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.class_num && formik.errors.class_num && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.class_num}
+          </p>}
 
-        <Button sx={{ width: '120px' }} type='submit' variant='contained'>Submit</Button>
-        {edit && <Button sx={{ width: '120px' }} onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
+          <Button type='submit' variant='contained'>Submit</Button>
+          {edit && <Button onClick={() => { cancelEdit() }} type='button' variant='outlined'>Cancel</Button>}
 
-      </Box>
+        </Box>
+      </Paper>
 
       <Box component={'div'} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
         {loading ? (

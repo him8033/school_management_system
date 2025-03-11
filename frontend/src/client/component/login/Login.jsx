@@ -1,7 +1,5 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx';
 import axios from 'axios';
@@ -11,7 +9,14 @@ import { useNavigate } from 'react-router-dom';
 import { baseApi } from '../../../environment.js';
 
 export default function Login() {
-  const [role, setRole] = React.useState('student')
+  const [role, setRole] = React.useState('student');
+  const [message, setMessage] = React.useState('');
+  const [messageType, setMessageType] = React.useState('');
+
+  const handleMessageClose = () => {
+    setMessage('');
+  }
+
   const navigate = useNavigate();
   const { login } = React.useContext(AuthContext);
   const initialValues = {
@@ -37,28 +42,28 @@ export default function Login() {
           if (token) {
             localStorage.setItem("token", token);
           }
+
           const user = res.data.user;
           if (user) {
             localStorage.setItem("user", JSON.stringify(user));
             login(user);
           }
+
           setMessage(res.data.message);
           setMessageType('success');
           formik.resetForm();
           navigate(`/${role}`);
-        }).catch(err => {
-          console.log("Error: ", err);
-          setMessage(err.response.data.message);
+
+        }).catch(error => {
+          console.error(
+            `%c[ERROR in Login Page]:- ${error.name || "Unknown Error"} `,
+            "color: red; font-weight: bold; font-size: 14px;", error
+          );
+          setMessage(error.response.data.message);
           setMessageType('error');
         })
     }
   })
-
-  const [message, setMessage] = React.useState('');
-  const [messageType, setMessageType] = React.useState('');
-  const handleMessageClose = () => {
-    setMessage('');
-  }
 
   return (
     <Box component={'div'} sx={{
@@ -71,55 +76,56 @@ export default function Login() {
       paddingBottom: "50px"
     }}>
       {message && <MessageSnackbar message={message} messageType={messageType} handleClose={handleMessageClose} />}
-      <Typography variant='h2' sx={{ textAlign: "center", paddingBottom: "25px" }}>Login</Typography>
-      <Box
-        component="form"
-        sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto', background: '#fff' }}
-        noValidate
-        autoComplete="off"
-        onSubmit={formik.handleSubmit}
-      >
+      <Paper sx={{ width: '55vw', minWidth: '230px', margin: 'auto', padding: '2.5vw', borderRadius: '1rem' }}>
+        <Typography variant='h2' sx={{ textAlign: "center", paddingBottom: "25px" }}>Login</Typography>
+        <Box
+          component="form"
+          sx={{ '& > :not(style)': { m: 1 }, display: 'flex', flexDirection: 'column', width: '50vw', minWidth: '230px', margin: 'auto' }}
+          noValidate
+          autoComplete="off"
+          onSubmit={formik.handleSubmit}
+        >
 
-        <FormControl sx={{ mt: '10px' }}>
-          <InputLabel id="demo-simple-select-label">Role</InputLabel>
-          <Select
-            label="Role"
-            value={role}
-            onChange={(e) => { setRole(e.target.value) }}
-          >
-            <MenuItem value="">Select Role</MenuItem>
-            <MenuItem value="school">School</MenuItem>
-            <MenuItem value="teacher">Teacher</MenuItem>
-            <MenuItem value="student">Student</MenuItem>
-          </Select>
-        </FormControl>
+          <FormControl sx={{ mt: '10px' }}>
+            <InputLabel id="demo-simple-select-label">Role</InputLabel>
+            <Select
+              label="Role"
+              value={role}
+              onChange={(e) => { setRole(e.target.value) }}
+            >
+              <MenuItem value="">Select Role</MenuItem>
+              <MenuItem value="school">School</MenuItem>
+              <MenuItem value="teacher">Teacher</MenuItem>
+              <MenuItem value="student">Student</MenuItem>
+            </Select>
+          </FormControl>
 
-        <TextField
-          name="email"
-          label="E-mail"
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.email && formik.errors.email && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.email}
-        </p>}
+          <TextField
+            name="email"
+            label="E-mail"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.email && formik.errors.email && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.email}
+          </p>}
 
-        <TextField
-          type='password'
-          name="password"
-          label="Password"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.password && formik.errors.password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
-          {formik.errors.password}
-        </p>}
+          <TextField
+            type='password'
+            name="password"
+            label="Password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.password && formik.errors.password && <p style={{ color: 'red', textTransform: 'capitalize' }}>
+            {formik.errors.password}
+          </p>}
 
-        <Button type='submit' variant='contained'>Submit</Button>
-
-      </Box>
+          <Button type='submit' variant='contained'>Submit</Button>
+        </Box>
+      </Paper>
     </Box>
   );
 }
