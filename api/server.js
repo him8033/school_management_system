@@ -16,6 +16,7 @@ const noticeRouter = require("./routers/notice.router.js");
 
 const app = express();
 app.use(express.json());
+const path = require('path');
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 const corsOption = {
