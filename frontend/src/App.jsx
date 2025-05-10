@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter as Router, Route, Routes } from 'react-router-dom'
 import School from './school/School.jsx'
 import Dashboard from './school/components/dashboard/Dashboard.jsx'
 import Class from './school/components/class/Class.jsx'
@@ -43,7 +43,7 @@ function App() {
   return (
     <ThemeProvider theme={dark ? darkTheme : lightTheme}>
       <DraggableButton />
-      <BrowserRouter>
+      <Router>
         <Routes>
 
           {/* School Route */}
@@ -88,7 +88,7 @@ function App() {
             <Route path='/logout' element={<LogOut />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </Router>
     </ThemeProvider>
   )
 }
