@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
+import { Button, Paper, Skeleton, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import axios from 'axios';
 import { baseApi } from '../../../environment.js';
+import { Link } from 'react-router-dom';
 
 export default function ExaminationStudent() {
   const [examinations, setExaminations] = React.useState([]);
@@ -39,7 +40,6 @@ export default function ExaminationStudent() {
         "color: red; font-weight: bold; font-size: 14px;", error
       );
       setLoading(false);
-
     }
   }
 
@@ -74,18 +74,30 @@ export default function ExaminationStudent() {
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                <TableCell><b>Exam Date</b></TableCell>
-                <TableCell align="right"><b>Subject</b></TableCell>
-                <TableCell align="right"><b>Exam Type</b></TableCell>
+                <TableCell>Exam Date</TableCell>
+                <TableCell align="center">Subject</TableCell>
+                <TableCell align="center">Exam Type</TableCell>
+                <TableCell align="center">Duration (minutes)</TableCell>
+                <TableCell align="center">Total Marks</TableCell>
+                <TableCell align="center">Passing Marks</TableCell>
+                <TableCell align="center">Active</TableCell>
+                <TableCell align="center">Questions</TableCell>
+                <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 [...Array(5)].map((_, index) => (
                   <TableRow key={index}>
-                    <TableCell component="th" scope="row"><Skeleton width="120px" /></TableCell>
-                    <TableCell align="right"><Skeleton width="100px" /></TableCell>
-                    <TableCell align="right"><Skeleton width="120px" /></TableCell>
+                    <TableCell><Skeleton variant="text" width={100} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="text" width={120} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="text" width={100} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="text" width={80} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="text" width={80} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="text" width={80} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="rectangular" width={40} height={30} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="text" width={120} /></TableCell>
+                    <TableCell align="center"><Skeleton variant="rectangular" width={150} height={30} /></TableCell>
                   </TableRow>
                 ))
               ) : examinations.length > 0 ?
@@ -96,7 +108,26 @@ export default function ExaminationStudent() {
                     </TableCell>
                     <TableCell align="right">{examination.subject.subject_name}</TableCell>
                     <TableCell align="right">{examination.examType}</TableCell>
-
+                    <TableCell align="center">{examination.duration} Minutes</TableCell>
+                    <TableCell align="center">{examination.totalMarks}</TableCell>
+                    <TableCell align="center">{examination.passingMarks}</TableCell>
+                    <TableCell align="center">
+                      <Switch checked={examination.isActive} disabled />
+                    </TableCell>
+                    <TableCell align="center">
+                      {examination.questions.length} Questions
+                    </TableCell>
+                    
+                      <TableCell align="center">
+                        <Button
+                          variant="contained"
+                          sx={{ background: 'green', mr: '5px' }}
+                          // onClick={() => handleEdit(examination._id)}
+                          disabled={!examination.isActive}
+                        >
+                          <Link to={`/student/examination/${examination._id}`}>Take Exam</Link>
+                        </Button>
+                      </TableCell>
                   </TableRow>
                 ))) : (
                   <TableRow>

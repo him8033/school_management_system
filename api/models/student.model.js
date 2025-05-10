@@ -42,6 +42,12 @@ const studentSchema = new Schema({
         type: String,
         required: true
     },
+    examResults: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: "ExamResult"
+        }
+    ],
     createdAt: {
         type: Date,
         default: new Date()

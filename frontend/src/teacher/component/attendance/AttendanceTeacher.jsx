@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { baseApi } from '../../../environment.js'
-import { Alert, Box, Button, FormControl, FormControlLabel, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
+import { Alert, Box, Button, FormControl, FormControlLabel, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check'
 import MessageSnackbar from '../../../basicUtilityComponent/snackbar/MessageSnackbar.jsx'
 
@@ -12,17 +12,6 @@ export default function AttendanceTeacher() {
   const [attendanceChecked, setAttendanceChecked] = useState(false);
   const [students, setStudents] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
 
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
@@ -155,7 +144,7 @@ export default function AttendanceTeacher() {
                 })}
               </Select>
             </FormControl>
-            <Alert icon={<CheckIcon fontSize='inherit' />} severity='success' sx={{width: '100%', ml: 2}}>You are Attendee of {classes.length} Class</Alert>
+            <Alert icon={<CheckIcon fontSize='inherit' />} severity='success' sx={{ width: '100%', ml: 2 }}>You are Attendee of {classes.length} Class</Alert>
           </Box>
         </Paper> : <Alert icon={<CheckIcon fontSize='inherit' />} severity='warning'>
           You are not Attendee of any Class
@@ -176,8 +165,8 @@ export default function AttendanceTeacher() {
         </TableContainer>
       ) : students.length > 0 ?
         <Paper>
-          <TableContainer sx={{ maxHeight: 400 }}>
-            <Table stickyHeader aria-label="sticky table">
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   <TableCell><b>Name</b></TableCell>
@@ -185,8 +174,8 @@ export default function AttendanceTeacher() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {(students.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((student) => (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={student._id}>
+                {(students.map((student) => (
+                  <TableRow hover key={student._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                     <TableCell component="th" scope="row">{student.name}</TableCell>
                     <TableCell align="right">
                       <FormControl>
@@ -217,15 +206,6 @@ export default function AttendanceTeacher() {
             </Table>
             <Button sx={{ margin: 2 }} variant='contained' onClick={submitAttendance}>Take Attendance</Button>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            component="div"
-            count={students.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
         </Paper> : <>
           <Alert icon={<CheckIcon fontSize='inherit' />} severity='warning'>
             {attendanceChecked ? "Attendance Already Taken For this Class" : "There is no Students in this Class. Check Another Class"}

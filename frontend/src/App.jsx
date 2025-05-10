@@ -35,6 +35,7 @@ import { ThemeProvider } from '@emotion/react'
 import { useContext } from 'react'
 import darkTheme from './basicUtilityComponent/dark_theme/darkTheme.js'
 import lightTheme from './basicUtilityComponent/light_theme/lightTheme.js'
+import ExamPaper from './student/components/examination/ExamPaper.jsx'
 
 function App() {
   const { dark } = useContext(AuthContext);
@@ -74,6 +75,7 @@ function App() {
             <Route index element={<StudentDetails />} />
             <Route path='attendance' element={<AttendanceStudent />} />
             <Route path='examination' element={<ExaminationStudent />} />
+            <Route path='examination/:id' element={<ExamPaper />} />
             <Route path='notice' element={<NoticeStudent />} />
             <Route path='schedule' element={<ScheduleStudent />} />
           </Route>
