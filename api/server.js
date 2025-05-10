@@ -17,7 +17,7 @@ const noticeRouter = require("./routers/notice.router.js");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 const corsOption = {
     origin: "*",
     methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
@@ -55,6 +55,10 @@ app.use("/api/notice", noticeRouter);
 app.get("/api/testing", (req, res) => {
     res.send("Server is Working Properly.")
 })
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
