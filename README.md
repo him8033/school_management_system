@@ -1,5 +1,6 @@
-const { computeCosineSimilarity } = require("./computeCosineSimilarity")
+# 📁 Project Structure – School Management System
 
+```bash
 School Management
 ├── api/
 │   ├── auth/
@@ -147,3 +148,4 @@ School Management
 │   ├── package.json
 │   ├── README.md
 │   ├── vite.config.js
+```
