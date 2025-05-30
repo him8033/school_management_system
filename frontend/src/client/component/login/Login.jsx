@@ -94,7 +94,7 @@ export default function Login() {
               onChange={(e) => { setRole(e.target.value) }}
             >
               <MenuItem value="">Select Role</MenuItem>
-              <MenuItem value="school">School</MenuItem>
+              <MenuItem value="school">College</MenuItem>
               <MenuItem value="teacher">Teacher</MenuItem>
               <MenuItem value="student">Student</MenuItem>
             </Select>

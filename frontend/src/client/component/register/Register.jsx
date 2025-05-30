@@ -67,7 +67,7 @@ export default function Register() {
             setMessageType('error');
           })
       } else {
-        setMessage("Please add School Image.");
+        setMessage("Please add College Image.");
         setMessageType('error');
       }
     }
@@ -93,7 +93,7 @@ export default function Register() {
           onSubmit={formik.handleSubmit}
         >
 
-          <Typography>Add School Image</Typography>
+          <Typography>Add College Image</Typography>
           <TextField
             type='file'
             inputRef={fileInputRef}
@@ -105,7 +105,7 @@ export default function Register() {
 
           <TextField
             name="school_name"
-            label="School Name"
+            label="College Name"
             value={formik.values.school_name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}

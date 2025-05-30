@@ -144,7 +144,7 @@ export default function Student() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div">
-                        School Management System [Multiple]
+                        College Management System [Multiple]
                     </Typography>
                 </Toolbar>
             </AppBar>
